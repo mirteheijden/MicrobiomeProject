@@ -1,0 +1,191 @@
+# SNAKEMAKE WORKFLOW FOR SHOTGUN DATA
+# The workflow alings shotgun data with Bowtie2, and performs taxonomic
+# profiling against Greengenes2 database and functional profiling with UniRef.
+
+# Adjust sample names here and other places
+SAMPLES, = glob_wildcards("RESULTS/analysis_ready_fastqs/{sample,[^/]+}.unmapped_1.fastq.gz")
+
+# Define targets. The target of the workflow is to create these files. If they are present, the workflow stops.
+rule all:
+    input:
+        expand("RESULTS/shotgun/bowtie2/{sample}_aligned.sam.gz", sample=SAMPLES),
+        "RESULTS/shotgun/woltka/ogu.biom",
+        "RESULTS/shotgun/gg2/ogu.biom.qza",
+        "RESULTS/shotgun/gg2/counts.qza",
+        "RESULTS/shotgun/gg2/taxonomy.qza",
+        "RESULTS/shotgun/gg2/phylogeny.nwk.qza",
+        "RESULTS/shotgun/woltka/function"
+
+# Align sequences against WoL database using Bowtie2
+rule align_sequences:
+    input:
+        r1 = "RESULTS/analysis_ready_fastqs/{sample}.unmapped_1.fastq.gz",
+        r2 = "RESULTS/analysis_ready_fastqs/{sample}.unmapped_2.fastq.gz"
+    output:
+        "RESULTS/shotgun/bowtie2/{sample}_aligned.sam.gz"
+    threads:
+        32
+    resources:
+        mem_mb = 150000,
+        tmpdir = os.path.abspath("tmpdir")
+    shell:
+        """
+        # Load correct module
+        export PATH="/users/mirtevan/qiime2-shotgun-2023.09/bin:$PATH"
+
+# Align sequences against WoLr2 database.
+        # Input is paired sample.
+        # Maximixe discovery of diverse microbes (local because there might that
+        # only adapters were trimmed and local maximizes the discovery of those
+        # mappings that might not been able to catch with end-to-end matching).
+        bowtie2 -p {threads} -x /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/databases/bowtie2/WoLr2 \
+        -1 {input.r1} -2 {input.r2} \
+        --very-sensitive --seed 7482 | gzip > {output}
+        """
+
+# Classify alignments to operation genomic unit (OGU)
+rule classify_ogu:
+    input:
+        expand("RESULTS/shotgun/bowtie2/{sample}_aligned.sam.gz", sample=SAMPLES)
+    params:
+        indir = "RESULTS/shotgun/bowtie2"
+    output:
+        "RESULTS/shotgun/woltka/ogu.biom"
+    threads:
+        32
+    resources:
+        mem_mb = 80000,
+        tmpdir = os.path.abspath("tmpdir")
+    shell:
+        """
+        # Load correct module
+         export PATH="/users/mirtevan/qiime2-shotgun-2023.09/bin:$PATH"
+        
+        # Classify to OGUs
+        woltka classify -i {params.indir} -o {output}
+        """
+
+# Convert OGU BIOM file to QIIME artifact so that we can use QIIME2
+rule import_to_qiime:
+    input:
+        "RESULTS/shotgun/woltka/ogu.biom"
+    output:
+        "RESULTS/shotgun/gg2/ogu.biom.qza"
+    threads:
+        32
+    resources:
+        mem_mb = 80000,
+        tmpdir = os.path.abspath("tmpdir")
+    shell:
+        """
+        # Load correct module
+         export PATH="/users/mirtevan/qiime2-shotgun-2023.09/bin:$PATH"
+        
+        qiime tools import --input-path {input} --output-path {output} --type FeatureTable[Frequency]
+        """
+
+# Subset the data so that it includes only those that are included in GG2
+rule filter_features:
+    input:
+        "RESULTS/shotgun/gg2/ogu.biom.qza"
+    output:
+        "RESULTS/shotgun/gg2/counts.qza"
+    threads:
+        32
+    resources:
+        mem_mb = 80000,
+        tmpdir = os.path.abspath("tmpdir")
+    shell:
+        """
+        # Load correct module
+        export PATH="/users/mirtevan/qiime2-shotgun-2023.09/bin:$PATH"
+
+# Filter taxonomy so that it includes only those taxa that are present
+        # in GG2.
+        qiime greengenes2 filter-features \
+        --i-feature-table {input} --o-filtered-feature-table {output} \
+        --i-reference /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.taxonomy.asv.nwk.qza
+        """
+
+# Assign GG2 taxonomy
+rule taxonomic_profiling:
+    input:
+        "RESULTS/shotgun/gg2/counts.qza"
+    output:
+        "RESULTS/shotgun/gg2/taxonomy.qza"
+    threads:
+        32
+    resources:
+        mem_mb = 80000,
+        tmpdir = os.path.abspath("tmpdir")
+    shell:
+        """
+        # Load correct module
+        export PATH="/users/mirtevan/qiime2-shotgun-2023.09/bin:$PATH"
+
+# Assign taxa based on GG2.
+        qiime greengenes2 taxonomy-from-table \
+        --i-table {input} --o-classification {output} \
+        --i-reference-taxonomy /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.taxonomy.asv.nwk.qza
+        """
+
+# Filter GG2 tree based on data we have
+rule filter_tree:
+    input:
+        "RESULTS/shotgun/gg2/counts.qza"
+    output:
+        "RESULTS/shotgun/gg2/phylogeny.nwk.qza"
+    threads:
+        32
+    resources:
+        mem_mb = 80000,
+        tmpdir = os.path.abspath("tmpdir")
+    shell:
+        """
+        # Load correct module
+         export PATH="/users/mirtevan/qiime2-shotgun-2023.09/bin:$PATH"
+
+# Filter phylogeny
+        qiime phylogeny filter-tree \
+	    --i-table {input} \
+	    --i-tree /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.phylogeny.asv.nwk.qza \
+	    --o-filtered-tree {output}
+        """
+
+# Classify alignments to functional profiles
+# Functional profiling with UniRef. From database info: Sequence alignment was
+# performed on UniRef90 and UniRef50 separately. Results were merged,
+# prioritizing the former over the latter (i.e., an ORF was assigned
+# to a UniRef50 entry only when it could not be assigned to a UniRef90 entry).
+# Also GO molecular process profiling.
+rule functional_profiling:
+    input:
+        expand("RESULTS/shotgun/bowtie2/{sample}_aligned.sam.gz", sample=SAMPLES)
+    params:
+        indir = "RESULTS/shotgun/bowtie2"
+    output:
+        directory("RESULTS/shotgun/woltka/function")
+    threads:
+        32
+    resources:
+        mem_mb = 80000,
+        tmpdir = os.path.abspath("tmpdir")
+    shell:
+        """
+        # Load correct module
+         export PATH="/users/mirtevan/qiime2-shotgun-2023.09/bin:$PATH"
+
+# Classify genes based on uniref
+        woltka classify \
+        --input  {params.indir} --output {output} \
+        --coords /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/function/coords.txt.xz \
+        --map    /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/function/uniref/orf-to-uniref.map.xz \
+        --names  /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/function/uniref/uniref_name.txt.xz \
+        --map    /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/function/go/uniref/process.map.xz \
+        --names  /scratch/project_200XXXX/nextflow_metagenomics/DB/wol2/function/go/go_name.txt \
+        --rank   uniref,process
+        """
+
+
+        
+

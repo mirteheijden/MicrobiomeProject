@@ -1,0 +1,194 @@
+# SNAKEMAKE WORKFLOW FOR HUMANN3
+
+# DEFINE GLOBAL RULES
+
+# Adjust sample names here and from input of rule humann
+SAMPLES, = glob_wildcards("RESULTS/analysis_ready_fastqs/{sample,[^/]+}.unmapped_1.fastq.gz")
+
+# Define targets. The target of the workflow is to create these files. If they are present, the workflow stops.
+rule all:
+    input:
+        "RESULTS/humann3/final/genefamilies_relab.txt",
+        "RESULTS/humann3/final/genefamilies_cpm.txt",
+        "RESULTS/humann3/final/pathabundance.txt",
+        "RESULTS/humann3/final/pathcoverage.txt",
+        "RESULTS/humann3/final/taxa.txt"
+
+# PERFORM THE MAPPING WITH HUMANN
+
+### Run Humann pipeline
+# Align sequences with Bowtie. Then map sequences based on databases.
+# Result includes taxonomic profiling along with functional profiling.
+
+rule run_humann:
+    input:
+        "RESULTS/analysis_ready_fastqs/{sample,[^/]+}.unmapped_1.fastq.gz"
+    output:
+        o1 = "RESULTS/humann3/raw/{sample}.unmapped_1_genefamilies.tsv",
+        o2 = "RESULTS/humann3/raw/{sample}.unmapped_1_pathcoverage.tsv",
+        o3 = "RESULTS/humann3/raw/{sample}.unmapped_1_pathabundance.tsv"
+    params:
+        outdir = "RESULTS/humann3/raw"
+    threads:
+        24
+    resources:
+        mem_mb=100000
+    shell:
+        """
+        module load humann/3.8
+
+        humann --input {input} --output {params.outdir} --threads {threads} --resume \
+        --nucleotide-database $HUMANN_NUC --protein-database $HUMANN_PROT \
+        --metaphlan-options="-t=rel_ab --offline --bowtie2db $MPA"
+        """
+
+# MANIPULATIONS
+
+#### Normalize
+# Apply transformations (cpm = counts per million, relab = relative abundance)
+
+rule renorm_cpm:
+    input:
+        "RESULTS/humann3/raw/{sample}.unmapped_1_genefamilies.tsv"
+    output:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_cpm.tsv"
+    shell:
+        """
+        module load humann/3.8
+
+        humann_renorm_table --input {input} --output {output} \
+        --units cpm --update-snames
+        """
+
+rule renorm_relab:
+    input:
+        "RESULTS/humann3/raw/{sample}.unmapped_1_genefamilies.tsv"
+    output:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_relab.tsv"
+    shell:
+        """
+        module load humann/3.8
+
+        humann_renorm_table --input {input} --output {output} \
+        --units relab --update-snames
+        """
+
+#### Regroup
+# Humann results can have lerge number of features. This regroups results so that
+# genes are grouped into gene groups.
+
+rule regroup_cpm:
+    input:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_cpm.tsv"
+    output:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_cpm_regroup.tsv"
+    shell:
+        """
+        module load humann/3.8
+
+        humann_regroup_table --input {input} --output {output} \
+        --groups uniref90_rxn
+        """
+
+
+rule regroup_relab:
+    input:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_relab.tsv"
+    output:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_relab_regroup.tsv"
+    shell:
+        """
+        module load humann/3.8
+
+        humann_regroup_table --input {input} --output {output} \
+        --groups uniref90_rxn
+        """
+
+#### Rename
+# Some gene names are ot human-readable names, rather they are IDs. This step
+# adds name to features.
+
+rule rename_cpm:
+    input:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_cpm_regroup.tsv"
+    output:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_cpm_regroup_rename.tsv"
+    shell:
+        """
+        module load humann/3.8
+
+        humann_rename_table --input {input} --output {output} \
+        --names metacyc-rxn
+        """
+
+rule rename_relab:
+    input:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_relab_regroup.tsv"
+    output:
+        "RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_relab_regroup_rename.tsv"
+    shell:
+        """
+        module load humann/3.8
+
+        humann_rename_table --input {input} --output {output} \
+        --names metacyc-rxn
+        """
+
+# MERGE SAMPLES
+
+### This step merges samples into single tables
+# First, copy files to final data directory so that they can be merged.
+# Then, merge samples to single tables.
+
+rule copy_files_for_merging:
+    input:
+        i1 = expand("RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_relab_regroup_rename.tsv", sample=SAMPLES),
+        i2 = expand("RESULTS/humann3/processed/{sample}.unmapped_1_genefamilies_cpm_regroup_rename.tsv", sample=SAMPLES),
+        i3 = expand("RESULTS/humann3/raw/{sample}.unmapped_1_pathabundance.tsv", sample=SAMPLES),
+        i4 = expand("RESULTS/humann3/raw/{sample}.unmapped_1_pathcoverage.tsv", sample=SAMPLES)
+    output:
+        o1 = directory("RESULTS/humann3/final/genefamilies_relab"),
+        o2 = directory("RESULTS/humann3/final/genefamilies_cpm"),
+        o3 = directory("RESULTS/humann3/final/pathabundance"),
+        o4 = directory("RESULTS/humann3/final/pathcoverage"),
+        o5 = directory("RESULTS/humann3/final/taxa")
+    params:
+        i5 = expand("RESULTS/humann3/raw/{sample}.unmapped_1_humann_temp/{sample}.unmapped_1_metaphlan_bugs_list.tsv", sample=SAMPLES)
+    shell:
+        """
+      # Copy files to directory storing final results
+        mkdir --parents {output.o1}; cp {input.i1} $_
+        mkdir --parents {output.o2}; cp {input.i2} $_
+        mkdir --parents {output.o3}; cp {input.i3} $_
+        mkdir --parents {output.o4}; cp {input.i4} $_
+        mkdir --parents {output.o5}; cp {params.i5} $_
+        """
+
+rule merge_samples:
+    input:
+        i1 = "RESULTS/humann3/final/genefamilies_relab",
+        i2 = "RESULTS/humann3/final/genefamilies_cpm",
+        i3 = "RESULTS/humann3/final/pathabundance",
+        i4 = "RESULTS/humann3/final/pathcoverage",
+        i5 = "RESULTS/humann3/final/taxa"
+    params:
+        i5 = expand("RESULTS/humann3/final/taxa/{sample}.unmapped_1_metaphlan_bugs_list.tsv", sample=SAMPLES),
+    output:
+        o1 = "RESULTS/humann3/final/genefamilies_relab.txt",
+        o2 = "RESULTS/humann3/final/genefamilies_cpm.txt",
+        o3 = "RESULTS/humann3/final/pathabundance.txt",
+        o4 = "RESULTS/humann3/final/pathcoverage.txt",
+        o5 = "RESULTS/humann3/final/taxa.txt"
+    shell:
+        """
+        module load humann/3.8
+
+ # Join humann tables
+        humann_join_tables --input {input.i1} --output {output.o1}
+        humann_join_tables --input {input.i2} --output {output.o2}
+        humann_join_tables --input {input.i3} --output {output.o3}
+        humann_join_tables --input {input.i4} --output {output.o4}
+        # Join metaphlan table
+        merge_metaphlan_tables.py {params.i5} > {output.o5}
+        """
+
