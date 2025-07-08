@@ -3,7 +3,7 @@
 #SBATCH --time=10:00:00
 #SBATCH --partition=small
 #SBATCH --nodes=1
-#SBATCH --account=project_2008347
+#SBATCH --account=project_XXXX
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=80G
@@ -12,7 +12,7 @@
 
 echo "start"
 # Define the parent dir
-parent="/scratch/project_2008347/mice_feces_IV2"
+parent="/scratch/project_XXXX/mice_feces_IV2"
 
 module load humann/3.8
 
@@ -50,7 +50,7 @@ done
 rename_KO() {
     input="$parent/RESULTS/humann3/final/Renorm_genefamilies_Uniref90_KO.txt"
     output="$parent/RESULTS/humann3/final/RenormRename_genefamilies_Uniref90_KO.txt"
-    DB="/scratch/project_2008347/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_ko_name.txt.gz"
+    DB="/scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_ko_name.txt.gz"
     humann_rename_table --input "$input" --output "$output" -c $DB
 }
 
@@ -58,7 +58,7 @@ rename_KO() {
 rename_eggnog() {
     input="$parent/RESULTS/humann3/final/Renorm_genefamilies_Uniref90_EggNOG.txt"
     output="$parent/RESULTS/humann3/final/RenormRename_genefamilies_Uniref90_EggNOG.txt"
-    DB="/scratch/project_2008347/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_eggnog_name.txt.gz"
+    DB="/scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_eggnog_name.txt.gz"
     humann_rename_table --input "$input" --output "$output" -c $DB
 }
 
@@ -66,7 +66,7 @@ rename_eggnog() {
 rename_GO() {
         input="$parent/RESULTS/humann3/final/Renorm_genefamilies_Uniref90_GO.txt"
     output="$parent/RESULTS/humann3/final/RenormRename_genefamilies_Uniref90_GO.txt"
-    DB="/scratch/project_2008347/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_go_name.txt.gz"
+    DB="/scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_go_name.txt.gz"
     humann_rename_table --input "$input" --output "$output" -c $DB
 }
 
@@ -74,7 +74,7 @@ rename_GO() {
 rename_pfam() {
         input="$parent/RESULTS/humann3/final/Renorm_genefamilies_Uniref90_Pfam.txt"
     output="$parent/RESULTS/humann3/final/RenormRename_genefamilies_Uniref90_Pfam.txt"
-    DB="/scratch/project_2008347/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_pfam_name.txt.gz"
+    DB="/scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_pfam_name.txt.gz"
     humann_rename_table --input "$input" --output "$output" -c $DB
 }
 
@@ -82,7 +82,7 @@ rename_pfam() {
 rename_ec() {
     input="$parent/RESULTS/humann3/final/Renorm_genefamilies_Uniref90_EC.txt"
     output="$parent/RESULTS/humann3/final/RenormRename_genefamilies_Uniref90_EC.txt"
-    DB="/scratch/project_2008347/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_ec_name.txt.gz"
+    DB="/scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_ec_name.txt.gz"
     humann_rename_table --input "$input" --output "$output" -c $DB
 }
 
@@ -91,7 +91,7 @@ rename_ec() {
 rename_metacyc() {
         input="$parent/RESULTS/humann3/final/Renorm_genefamilies_Uniref90_MetaCyc.txt"
     output="$parent/RESULTS/humann3/final/RenormRename_genefamilies_Uniref90_MetaCyc.txt"
-    DB="/scratch/project_2008347/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_level4ec_uniref90.txt.gz"
+    DB="/scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR/utility_mapping/map_level4ec_uniref90.txt.gz"
     humann_rename_table --input "$input" --output "$output" -c $DB --names metacyc-rxn
 }
 
