@@ -14,7 +14,7 @@ Pre-processing, adapted from @erawijantari, steps:
       MetaPhlan4:
 
       Follow set-up here: https://docs.csc.fi/apps/metaphlan/
-      Greengenes2: adapted from @TuomasBorman Setting and Running GG2 plugin - FOR SHOTGUN
+      Greengenes2: adapted from @TuomasBorman 
 
       For shotgun reads, we need newest QIIME2 tools with GG2 plugin and Woltka
 
@@ -27,8 +27,11 @@ Pre-processing, adapted from @erawijantari, steps:
       Install QIIME2:
 
       $ module load tykky
+   
       $ mkdir qiime2-shotgun-2023.09
+   
       $ conda-containerize new --mamba --prefix qiime2-shotgun-2023.09/ qiime2-shotgun-ubuntu-latest-conda.yml
+   
       Create a file for plugin installation
 
       create a text file named post_install_plugins_shotgun.txtcontaining the following info: (you can use nano, vim, or other favorite text editor)
@@ -38,6 +41,7 @@ Pre-processing, adapted from @erawijantari, steps:
       Install plugins
 
       $ conda-containerize update qiime2-shotgun-2023.09/ --post-install post_install_plugins_shotgun.txt
+   
       Add the software path so that the software is executable
 
       $ export PATH="qiime2-shotgun-2023.09/bin:$PATH" (preferably using full path, here is the example of current directory)
@@ -67,7 +71,8 @@ Pre-processing, adapted from @erawijantari, steps:
       Be sure to update the pipeline regularly:
 
       $ nextflow pull nf-core/taxprofiler
-      MetaPhlan4 results "metaphlan_db_meta4_combined_reports.txt" can be found RESULTS/Metaphlan. Use WinSCP to transfer to harddrive or to Rstudio. If they are not merged yet, merge the              .metaphlan_profile.txt files yourself:
+      
+      MetaPhlan4 results "metaphlan_db_meta4_combined_reports.txt" can be found RESULTS/Metaphlan. Use WinSCP to transfer to harddrive or to Rstudio. If they are not merged yet, merge the  .metaphlan_profile.txt files yourself:
 
       $ module load metaphlan
 
@@ -78,32 +83,41 @@ Pre-processing, adapted from @erawijantari, steps:
       Check the removal of the human reads by:
 
       Calculating the reads in the Raw data (reads_count_preprocess), after human removal:
+      
       $ cd ./SCRIPTS
+      
       Create the scripts using nano ( $ nano reads_count_preprocess, $ nano reads_count_postprocess
       Run the scripts, one by one:
+      
       $ chmod +x reads_count_preprocess
+      
       $ ./reads_count_preprocess
+      
       $ chmod +x reads_count_postprocess
+      
       $ ./reads_count_postprocess
+      
       Results can be found in RESULTS/reads_count_preprocess.tsv, and RESULTS/reads_count_postprocess
       Move .tsv files to PC using WinSCP
   
   
   
 4. Snakemake (Greengenes2) Adapted from @erawijantari and @TuomasBorman
-      Create the "Snakefile_gg2_shotgun" under the "workflow" directory. Adjust the path to the qiime config, project number, and files locations according to your need. We will use the pre-           processed reads from nextflow that has been stored in RESULTS/analysis_ready_fastqs
+      Create the "Snakefile_gg2_shotgun" under the "workflow" directory. Adjust the path to the qiime config, project number, and files locations according to your need. We will use the pre-processed reads from nextflow that has been stored in RESULTS/analysis_ready_fastqs
 
       Create the "run_GG2shotgun_workflow.sh" bash script in SCRIPTS to execute snakemake Please see SCRIPTS/run_GG2shotgun_workflow.sh, modify the project number
 
       Exectue run:
 
       $ chmod +x ./SCRIPTS/run_GG2shotgun_workflow.sh
+   
       $ ./SCRIPTS/run_GG2shotgun_workflow.sh
+   
       Results "counts.qza" and "taxonomy.qza" can be found at RESULTS/gg2. Use WinSCP to transfer to harddrive or to Rstudio
 
 
 
-5. Humann3 (functional profiling) adapted from @erawijantari, @TuomasBorman and @KatariinaParnanen
+6. Humann3 (functional profiling) adapted from @erawijantari, @TuomasBorman and @KatariinaParnanen
       Create the "Snakefile_humann" using nano under the "workflow" directory. Remember to adjust the path, project allocation, and file locations.
 
       Create a bash script "SCRIPTS/run_humann_workflow.sh" to execute snakemake.
@@ -111,7 +125,9 @@ Pre-processing, adapted from @erawijantari, steps:
       Execute run:
 
       $ chmod +x ./SCRIPTS/run_humann_workflow.sh
+   
       $ ./SCRIPTS/run_humann_workflow.sh
+
       IMPORTANT NOTES: always remember to check the tools version especially if running in batch. For running samples more than 100, it is more convenience to use the group function of snakemake.
 
 
