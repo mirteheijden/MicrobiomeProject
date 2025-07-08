@@ -12,6 +12,7 @@ Mice
 download FASTA file from here: https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_964188535.1/ to local dir. 
 Go to NCBI_dataset --> data --> GCA_964188535.1. Copy file .fna file to DB map, change file.fna to mice.FASTA and copy to Puhti DB using winSCP
   $ --hostremoval_reference /scratch/project_200XXXX/mice_feces_IV2/DB/mice.fasta
+  
 Let use --save_hostremoval_unmapped just to be safe to store the unmapped host reads (typically this is the final processed reads) ???
 
 Human:
@@ -19,7 +20,9 @@ Human:
 download FASTA file from here: https://www.ncbi.nlm.nih.gov/data-hub/genome/GCA_009914755.4/
 If you downloaded it from local dir copy it to puhti using scp
   $ unzip T2T-CHM13v2.0.zip
+  
   $ --hostremoval_reference /scratch/project_200XXX/nextflow_metagenomics/DB/human_CHM13
+  
 Let use --save_hostremoval_unmapped just to be safe to store the unmapped host reads (typically this is the final processed reads) ???
 
 MetaPhlan4:
@@ -36,8 +39,11 @@ Download and save the environment config file needed for installation wget https
 Install QIIME2:
 
   $ module load tykky
+  
   $ mkdir qiime2-shotgun-2023.09
+  
   $ conda-containerize new --mamba --prefix qiime2-shotgun-2023.09/ qiime2-shotgun-ubuntu-latest-conda.yml
+  
 Create a file for plugin installation
 
 create a text file named post_install_plugins_shotgun.txtcontaining the following info: (you can use nano, vim, or other favorite text editor)
