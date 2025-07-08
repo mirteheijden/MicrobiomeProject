@@ -16,7 +16,7 @@ library(ggplot2)
 #files
 
 ##TSE from GG2
-tse_GG2 <- loadFromQIIME2("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/counts.qza", taxonomy = "Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/taxonomy.qza", sampleMetaFile="Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/metadata.tsv")
+tse_GG2 <- loadFromQIIME2("paht_to/RESULTS/GG2/counts.qza", taxonomy = "paht_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="paht_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_GG2 <- colData(tse_GG2)
 rownames(col_data_GG2) <- col_data_GG2$Patient_day
@@ -25,7 +25,7 @@ col_data_GG2 <- as.data.frame(colData(tse_GG2))
 
 
 ##TSE from Metaphlan
-tse_Metaphlan <- loadFromMetaphlan("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/Metaphlan/metadata.tsv")
+tse_Metaphlan <- loadFromMetaphlan("paht_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="paht_to/RESULTS/Metaphlan/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_Metaphlan <- colData(tse_Metaphlan)
 rownames(col_data_Metaphlan) <- col_data_Metaphlan$Patient_day
@@ -228,7 +228,7 @@ library(RColorBrewer)
 #files
 
 ##TSE from GG2
-tse_GG2 <- importQIIME2("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/counts.qza", taxonomy = "Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/taxonomy.qza", sampleMetaFile="Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/metadata.tsv")
+tse_GG2 <- importQIIME2("paht_to/RESULTS/GG2/counts.qza", taxonomy = "paht_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="paht_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_GG2 <- colData(tse_GG2)
 rownames(col_data_GG2) <- col_data_GG2$Patient_day
@@ -236,7 +236,7 @@ colData(tse_GG2) <- col_data_GG2
 col_data_GG2 <- as.data.frame(colData(tse_GG2))
 
 ##TSE from Metaphlan
-tse_Metaphlan <- importMetaPhlAn("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/Metaphlan/metadata.tsv")
+tse_Metaphlan <- importMetaPhlAn("paht_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="paht_to/RESULTS/Metaphlan/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_Metaphlan <- colData(tse_Metaphlan)
 rownames(col_data_Metaphlan) <- col_data_Metaphlan$Patient_day
@@ -579,23 +579,12 @@ library(ggplot2)
 #files
 
 ##TSE from GG2
-tse_GG2 <- loadFromQIIME2("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/counts.qza", taxonomy = "Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/taxonomy.qza", sampleMetaFile="Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/GG2/metadata.tsv")
+tse_GG2 <- loadFromQIIME2("paht_to/RESULTS/GG2/counts.qza", taxonomy = "paht_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="paht_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_GG2 <- colData(tse_GG2)
 rownames(col_data_GG2) <- col_data_GG2$Patient_day
 colData(tse_GG2) <- col_data_GG2
 col_data_GG2 <- as.data.frame(colData(tse_GG2))
-
-
-##TSE from Metaphlan
-tse_Metaphlan <- loadFromMetaphlan("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/Metaphlan/metadata.tsv")
-# change MI_ID rownames of the tse, to our sample_ID
-col_data_Metaphlan <- colData(tse_Metaphlan)
-rownames(col_data_Metaphlan) <- col_data_Metaphlan$Patient_day
-colData(tse_Metaphlan) <- col_data_Metaphlan
-col_data_Metaphlan <- as.data.frame(colData(tse_Metaphlan))
-
-
 
 # Define tse - species GG2
 tse <- tse_GG2
@@ -732,11 +721,7 @@ print(bar_plot)
 
 
 
-
-
-
-
-# Define tse - genus GG2
+# ANCOMBC genus GG2
 tse <- tse_GG2
 
 
@@ -897,11 +882,12 @@ library(ggsignif)
 library(gridExtra)  # For combining plots
 library(grid)       # For combining plots
 
-### GG2 genus
+### genus
 
 # Isolate Day 1 samples with a known disease outcome
 tse <- tse_GG2
 #tse <- tse_Metaphlan
+
 tse <- tse[, which(colData(tse)$Response.day78. %in% c("DC", "No_DC"))]
 tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
 
@@ -1708,10 +1694,7 @@ legend("topright",                 # Legend position
 
 
 #####################################################################################################
-############ Functional analysis 
-
-################ Maaslin dot plot
-
+############ Functional analysis - Maaslin 
 library(mia)
 library(miaViz)
 library(TreeSummarizedExperiment)
@@ -1728,7 +1711,7 @@ library(dplyr)
 
 # Dot plot - KEGG
 # Gene family data
-gene_family_data <- read.delim("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
+gene_family_data <- read.delim("paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
 
 #Set column 1 as rownames
 rownames(gene_family_data) <- gene_family_data[, 1]
@@ -1755,7 +1738,7 @@ print(colnames(gene_family_data))
 
 
 ## Metadata
-metadata <- read.table("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
+metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
 
 # Function to extract the desired part of the row names
 extract_desired_part <- function(row_name) {
@@ -1785,7 +1768,6 @@ metadata <- metadata[common_ids, , drop = FALSE]
 # Ensure that the row names of the metadata match the column names of the count data
 stopifnot(all(colnames(gene_family_data) == rownames(metadata)))
 
-# option 4, w/o loadfromhumann
 # Create a TreeSummarizedExperiment object
 tse <- TreeSummarizedExperiment(
   assays = list(counts = (gene_family_data)),
@@ -1797,7 +1779,7 @@ tse <- tse[, which(colData(tse)$Sample_point == "Day_1")]
 tse <- tse[, which(colData(tse)$'Response(day78)' %in% c("DC", "No_DC"))]
 
 
-# Step 4: Check the TSE object
+# check the TSE object
 print(tse)
 
 
@@ -1904,15 +1886,14 @@ ggplot(plot_data, aes(x = GeneRatio, y = Feature)) +
 ################ barplots 
 
 # KO
-gene_family_data <- read.delim("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
+gene_family_data <- read.delim("path_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
 
 
 #Set column 1 as rownames
 rownames(gene_family_data) <- gene_family_data[, 1]
 gene_family_data <- gene_family_data[, -1]
 
-#modif column name to match metadata (if necessary)
-#in this example, I want to remove partial naming of the samples due to the pre-processing step.
+#modif column name to match metadata 
 library(stringr)
 
 # Function to extract the desired part of the column names
@@ -1932,7 +1913,7 @@ print(colnames(gene_family_data))
 
 
 ## Metadata
-metadata <- read.table("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
+metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
 
 # Function to extract the desired part of the row names
 extract_desired_part <- function(row_name) {
@@ -1961,7 +1942,6 @@ metadata <- metadata[common_ids, , drop = FALSE]
 # Ensure that the row names of the metadata match the column names of the count data
 stopifnot(all(colnames(gene_family_data) == rownames(metadata)))
 
-# option 4, w/o loadfromhumann
 # Create a TreeSummarizedExperiment object
 tse <- TreeSummarizedExperiment(
   assays = list(counts = (gene_family_data)),
@@ -2062,7 +2042,7 @@ for (species in K00929_columns) {
 
 ## Patched plots
 # KO
-gene_family_data <- read.delim("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
+gene_family_data <- read.delim("paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
 
 
 #Set column 1 as rownames
@@ -2070,7 +2050,6 @@ rownames(gene_family_data) <- gene_family_data[, 1]
 gene_family_data <- gene_family_data[, -1]
 
 #modif column name to match metadata (if necessary)
-#in this example, I want to remove partial naming of the samples due to the pre-processing step.
 library(stringr)
 
 # Function to extract the desired part of the column names
@@ -2090,7 +2069,7 @@ print(colnames(gene_family_data))
 
 
 ## Metadata
-metadata <- read.table("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
+metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
 
 # Function to extract the desired part of the row names
 extract_desired_part <- function(row_name) {
@@ -2119,7 +2098,6 @@ metadata <- metadata[common_ids, , drop = FALSE]
 # Ensure that the row names of the metadata match the column names of the count data
 stopifnot(all(colnames(gene_family_data) == rownames(metadata)))
 
-# option 4, w/o loadfromhumann
 # Create a TreeSummarizedExperiment object
 tse <- TreeSummarizedExperiment(
   assays = list(counts = (gene_family_data)),
@@ -2242,7 +2220,7 @@ library(ggsignif)
 library(patchwork)
 
 # Load data
-serum <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte")
+serum <- read_excel("paht_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte)
 
 # Define patient columns
 patient_columns <- c("20211", "20104", "30209", "20212", "20206", "20108", "20103(PR)", "30209")
@@ -2320,7 +2298,7 @@ print(combined_plot)
 library(pheatmap)
 
 # KO
-gene_family_data <- read.delim("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
+gene_family_data <- read.delim("paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
 
 #Set column 1 as rownames
 rownames(gene_family_data) <- gene_family_data[, 1]
@@ -2347,7 +2325,7 @@ print(colnames(gene_family_data))
 
 
 ## Metadata
-metadata <- read.table("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
+metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
 
 # Function to extract the desired part of the row names
 extract_desired_part <- function(row_name) {
@@ -2408,20 +2386,20 @@ merged_data <- merged_data %>%
 # DC first in boxplot
 merged_data$Response.day78. <- factor(merged_data$Response.day78., levels = c("DC", "No_DC"))
 
-# Step 1: Safely extract only the KO columns from merged_data
+# Extract only the KO columns from merged_data
 columns_of_interest <- grep("^K03758|^K01478", names(merged_data), value = TRUE)
 
 # Confirm they exist
 print(columns_of_interest)
 
-# Step 2: Extract only those columns and force it into a data frame
+# Extract those columns and force it into a data frame
 heatmap_matrix <- as.data.frame(merged_data[, columns_of_interest, drop = FALSE])
 
-# Step 3: Assign rownames using Patient info
+# Assign rownames using Patient info
 heatmap_matrix$Patient <- merged_data$Patient
 heatmap_matrix <- column_to_rownames(heatmap_matrix, "Patient")
 
-# Step 4: Rename patients
+# Rename patients
 name_mapping <- c(
   "20211" = "No_DC_20211",
   "20104" = "No_DC_20104",
@@ -2437,7 +2415,7 @@ name_mapping <- c(
 matched_names <- intersect(rownames(heatmap_matrix), names(name_mapping))
 rownames(heatmap_matrix)[rownames(heatmap_matrix) %in% matched_names] <- name_mapping[matched_names]
 
-# Step 5: Reorder rows
+# Reorder rows
 ordered_patients <- c("No_DC_20211", "No_DC_20104", "No_DC_30209",
                       "DC_20212", "DC_20206", "DC_20108", "DC_30207", "DC_20103(PR)")
 
@@ -2499,7 +2477,7 @@ library(tidyr)
 library(pheatmap)
 
 # Read SCFA data
-serum <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte")
+serum <- read_excel("paht_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte)
 
 # Original patient IDs
 original_patients <- c("20211", "20104", "30209", "20212", "20206", "20108", "30207", "20103(PR)")
@@ -2568,7 +2546,7 @@ library(dplyr)
 library(tidyr)
 
 
-serum <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte")
+serum <- read_excel("paht_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte)
 
 # Define the patient columns (make sure to update this list if needed)
 patient_columns <- c("20211", "20104", "30209", "20212", "20206", "20108", "20103(PR)", "30209")  # Update this list if needed
@@ -2638,279 +2616,6 @@ for (met in unique_metabolites) {
 }
 
 
-
-#############################################################################################
-########## Animal study, taxonomic bar plots
-# Load required packages
-library(qiime2R)
-library(mia)
-library(miaViz)
-library(TreeSummarizedExperiment)
-library(dplyr)
-library(phyloseq)
-library(ggplot2)
-library(patchwork)
-library(ecodist)
-library(data.table)
-library(vegan)
-library(ggforce)
-library(RColorBrewer)
-
-#files
-
-##TSE from GG2
-tse_GG2 <- importQIIME2("Z:/PhD CGTG/Experiments/In vivo/In vivo 2. Mice + Specie of interest/Microbiome sequencing/Puhti/RESULTS/counts.qza", taxonomy = "Z:/PhD CGTG/Experiments/In vivo/In vivo 2. Mice + Specie of interest/Microbiome sequencing/Puhti/RESULTS/taxonomy.qza", sampleMetaFile="Z:/PhD CGTG/Experiments/In vivo/In vivo 2. Mice + Specie of interest/Microbiome sequencing/Puhti/config/metadata_GG2.tsv")
-# change MI_ID rownames of the tse, to our sample_ID
-col_data_GG2 <- colData(tse_GG2)
-rownames(col_data_GG2) <- col_data_GG2$Mirte_ID
-colData(tse_GG2) <- col_data_GG2
-col_data_GG2 <- as.data.frame(colData(tse_GG2))
-
-
-# genus - GG2
-tse <- tse_GG2
-
-# Choose samples with sample_points: tse <- tse[, which(colData(tse)$Sample_time %in% c("Before_ABX", "Day_0", "Day_7", "Day_15"))]
-tse <- tse[, which(colData(tse)$Sample_time %in% c("Day_7"))]
-tse <- tse[, which(colData(tse)$Group %in% c("MOCK", "Virus", "A_shahii", "A_shahii+Virus"))]
-
-tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
-
-assay(tse_rel, "counts") <- sweep(assay(tse, "counts"), 2, colSums(assay(tse, "counts")), "/")
-
-summary(assay(tse_rel, "counts"))
-
-
-#MOCK
-MOCK <- tse_rel[, rownames(subset(colData(tse_rel), Group == "MOCK"))]
-
-tse_MOCK_genus <- mergeFeaturesByRank(MOCK, rank ="genus", onRankOnly=TRUE)
-top_MOCK <- getTopFeatures(tse_MOCK_genus, top = 15)
-
-#Virus
-Virus <- tse_rel[, rownames(subset(colData(tse_rel), Group == "Virus"))]
-
-tse_Virus_genus <- mergeFeaturesByRank(Virus, rank ="genus", onRankOnly=TRUE)
-top_Virus <- getTopFeatures(tse_Virus_genus, top = 15)
-
-#A_shahii
-A_shahii <- tse_rel[, rownames(subset(colData(tse_rel), Group == "A_shahii"))]
-
-tse_A_shahii_genus <- mergeFeaturesByRank(A_shahii, rank ="genus", onRankOnly=TRUE)
-top_A_shahii <- getTopFeatures(tse_A_shahii_genus, top = 15)
-
-#A_shahii_and_virus_and_virus
-A_shahii_and_virus <- tse_rel[, rownames(subset(colData(tse_rel), Group == "A_shahii+virus"))]
-
-tse_A_shahii_and_virus_genus <- mergeFeaturesByRank(A_shahii_and_virus, rank ="genus", onRankOnly=TRUE)
-top_A_shahii_and_virus <- getTopFeatures(tse_A_shahii_and_virus_genus, top = 15)
-
-
-# Renaming the "genus" rank to keep only top taxa and the rest to "Other"
-genus_renamed <- lapply(rowData(tse_rel)$genus,
-                        function(x){if (x %in% top_MOCK || x %in% top_Virus || x %in% top_A_shahii || x %in% top_A_shahii_and_virus ) {x} else {"Other"}})
-
-rowData(tse_rel)$genus <- as.character(genus_renamed)
-
-# Filter out rows where taxonomic group is "other"
-tse_filtered <- tse_rel[rowData(tse_rel)$genus != "Other", ]
-
-rowData(tse_filtered)$genus <- gsub("^g__", "", rowData(tse_filtered)$genus)
-rownames(colData(tse_filtered)) <- colData(tse_filtered)$Group
-
-# Get the current colData
-coldata <- colData(tse_filtered)
-
-# Update the rownames
-rownames(coldata) <- gsub("^A_shahii$", "Alistipes", rownames(coldata))
-rownames(coldata) <- gsub("^A_shahii\\+Virus$", "Virus + Alistipes", rownames(coldata))
-
-# Save it back
-colData(tse_filtered) <- coldata
-
-## Different color scale:
-# Generate a color palette with at least 30 colors from Set3
-color_palette <- colorRampPalette(brewer.pal(12, "Set3"))(30)
-
-custom_colors <- c(
-  "Akkermansia" = color_palette[1],       # Specify your taxa and their corresponding colors
-  "Adlercreutzia_404257" = color_palette[2],
-  "Acutalibacter" = color_palette[3],
-  "Bacteroides_H" = color_palette[4],
-  "CAG-873" = color_palette[5],
-  "CAG-485" = color_palette[6],
-  "COE1" = color_palette[7],
-  "Duncaniella" = color_palette[8],
-  "Dubosiella" = color_palette[9],
-  #"Dubosiella" = color_palette[10],
-  "Faecalibaculum" = color_palette[11],
-  "Limosilactobacillus" = color_palette[12],
-  "Mucispirillum" = color_palette[13],
-  "Muribaculum" = color_palette[14],
-  "NM07-P-09" = color_palette[15],
-  "Paramuribaculum" = color_palette[16],
-  "Parabacteroides_B_862066" = color_palette[17],
-  "QWKK01" = color_palette[18],
-  "UBA7173" = color_palette[19],
-  "14-2" = color_palette[20],
-  "Schaedlerella" = color_palette[21]
-  #"Escherichia_710834" = color_palette[22],
-  #"Lawsonibacter" = color_palette[23],
-  #"Gordonibacter" = color_palette[24],
-  #"Ruthenibacterium" = color_palette[25],
-  #"" = color_palette[26],
-  #"Ruminococcus_B" = color_palette[27],
-  #"Streptococcus" = color_palette[28],
-  #"taxa29" = color_palette[29],
-  #"taxa30" = color_palette[30]
-)
-
-
-plotAbundance(tse_filtered, rank = "genus", order_rank_by = "abund", decreasing = TRUE, add_x_text = TRUE) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  theme(
-    plot.title = element_text(face = "bold", size = 20),
-    axis.title.x = element_text(size = 14, margin = margin(t = 10)),
-    axis.title.y = element_text(size = 14, margin = margin(r = 10)),
-    axis.text = element_text(angle = 90, size = 12),
-    legend.title = element_text(face = "bold", size = 14),
-    legend.text = element_text(size = 14, face = "plain"),
-    text = element_text(size = 12),
-    panel.border = element_blank()) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +  # Set y-axis from 0 to 100%
-  labs(title = "Day 7", x = "", y = "Rel. Abundance (%)") +
-  scale_fill_manual(values = custom_colors) +  # Use custom color palette
-  guides(fill = guide_legend(title = "Genus"),  # Rename the legend for fill to "species"
-         color = "none")  # Remove the legend for the outline color (species)
-
-
-
-
-
-# species - GG2
-tse <- tse_GG2
-
-# Choose samples with sample_points: tse <- tse[, which(colData(tse)$Sample_time %in% c("Day_15", "Day_15", "Day_15", "Day_15"))]
-tse <- tse[, which(colData(tse)$Sample_time %in% c("Day_7"))]
-tse <- tse[, which(colData(tse)$Group %in% c("MOCK", "Virus", "A_shahii", "A_shahii+Virus"))]
-
-tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
-
-assay(tse_rel, "counts") <- sweep(assay(tse, "counts"), 2, colSums(assay(tse, "counts")), "/")
-
-summary(assay(tse_rel, "counts"))
-
-
-#MOCK
-MOCK <- tse_rel[, rownames(subset(colData(tse_rel), Group == "MOCK"))]
-
-tse_MOCK_species <- mergeFeaturesByRank(MOCK, rank ="species", onRankOnly=TRUE)
-top_MOCK <- getTopFeatures(tse_MOCK_species, top = 12)
-
-#Virus
-Virus <- tse_rel[, rownames(subset(colData(tse_rel), Group == "Virus"))]
-
-tse_Virus_species <- mergeFeaturesByRank(Virus, rank ="species", onRankOnly=TRUE)
-top_Virus <- getTopFeatures(tse_Virus_species, top = 12)
-
-#A_shahii
-A_shahii <- tse_rel[, rownames(subset(colData(tse_rel), Group == "A_shahii"))]
-
-tse_A_shahii_species <- mergeFeaturesByRank(A_shahii, rank ="species", onRankOnly=TRUE)
-top_A_shahii <- getTopFeatures(tse_A_shahii_species, top = 12)
-
-#A_shahii_and_virus_and_virus
-A_shahii_and_virus <- tse_rel[, rownames(subset(colData(tse_rel), Group == "A_shahii+virus"))]
-
-tse_A_shahii_and_virus_species <- mergeFeaturesByRank(A_shahii_and_virus, rank ="species", onRankOnly=TRUE)
-top_A_shahii_and_virus <- getTopFeatures(tse_A_shahii_and_virus_species, top = 12)
-
-
-# Renaming the "species" rank to keep only top taxa and the rest to "Other"
-species_renamed <- lapply(rowData(tse_rel)$species,
-                          function(x){if (x %in% top_MOCK || x %in% top_Virus || x %in% top_A_shahii || x %in% top_A_shahii_and_virus ) {x} else {"Other"}})
-
-rowData(tse_rel)$species <- as.character(species_renamed)
-
-# Filter out rows where taxonomic group is "other"
-tse_filtered <- tse_rel[rowData(tse_rel)$species != "Other", ]
-
-rowData(tse_filtered)$species <- gsub("^s__", "", rowData(tse_filtered)$species)
-rownames(colData(tse_filtered)) <- colData(tse_filtered)$Group
-
-# Get the current colData
-coldata <- colData(tse_filtered)
-
-# Update the rownames
-rownames(coldata) <- gsub("^A_shahii$", "Alistipes", rownames(coldata))
-rownames(coldata) <- gsub("^A_shahii\\+Virus$", "Virus + Alistipes", rownames(coldata))
-
-# Save it back
-colData(tse_filtered) <- coldata
-
-## Different color scale:
-# Generate a color palette with at least 30 colors from Set3
-color_palette <- colorRampPalette(brewer.pal(12, "Set3"))(30)
-
-## Different color scale:
-# Generate a color palette with at least 30 colors from Set3
-color_palette <- colorRampPalette(brewer.pal(12, "Set3"))(30)
-
-custom_colors <- c(
-  "Akkermansia muciniphila_D_776786" = color_palette[1],       # Specify your taxa and their corresponding colors
-  "Adlercreutzia caecimuris" = color_palette[2],
-  "Acutalibacter sp009936055" = color_palette[3],
-  "Bacteroides_H xylanisolvens" = color_palette[4],
-  "CAG-873 sp011959565" = color_palette[5],
-  "CAG-CAG-485 sp002362485" = color_palette[6],
-  "CAG-485 sp002493045" = color_palette[7],
-  "Duncaniella dubosii" = color_palette[8],
-  "Dubosiella newyorkensis" = color_palette[9],
-  #"Dubosiella" = color_palette[10],
-  "Faecalibaculum rodentium" = color_palette[11],
-  "Limosilactobacillus reuteri" = color_palette[12],
-  "Mucispirillum schaedleri" = color_palette[13],
-  "Muribaculum gordoncarteri" = color_palette[14],
-  "NM07-P-09 sp004793665" = color_palette[15],
-  "Paramuribaculum intestinale" = color_palette[16],
-  "Parabacteroides_B_862066 goldsteinii" = color_palette[17],
-  "UBA7173 sp002491305" = color_palette[19],
-  "14-2 sp000403315" = color_palette[20],
-  "Schaedlerella sp000403295" = color_palette[21],
-  "CAG-485 sp002493045" = color_palette[22],
-  "UBA7173 sp002491305" = color_palette[23]
-  #"Gordonibacter" = color_palette[24],
-  #"Ruthenibacterium" = color_palette[25],
-  #"" = color_palette[26],
-  #"Ruminococcus_B" = color_palette[27],
-  #"Streptococcus" = color_palette[28],
-  #"taxa29" = color_palette[29],
-  #"taxa30" = color_palette[30]
-)
-
-
-plotAbundance(tse_filtered, rank = "species", order_rank_by = "abund", decreasing = TRUE, add_x_text = TRUE) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  theme(
-    plot.title = element_text(face = "bold", size = 20),
-    axis.title.x = element_text(size = 14, margin = margin(t = 10)),
-    axis.title.y = element_text(size = 14, margin = margin(r = 10)),
-    axis.text = element_text(angle = 90, size = 12),
-    legend.title = element_text(face = "bold", size = 14),
-    legend.text = element_text(size = 14, face = "plain"),
-    text = element_text(size = 12),
-    panel.border = element_blank()) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +  # Set y-axis from 0 to 100%
-  labs(title = "Day 7", x = "", y = "Rel. Abundance (%)") +
-  scale_fill_manual(values = custom_colors) +  # Use custom color palette
-  guides(fill = guide_legend(title = "Species"),  # Rename the legend for fill to "species"
-         color = "none")  # Remove the legend for the outline color (species)
-
-
-
-
-
-
 #################### Taxonomy over time (30209, 30207)
 ##  Genus
 library(ggplot2)
@@ -2923,13 +2628,13 @@ library(patchwork)
 tse <- tse_GG2
 tse <- tse[, colData(tse)$Patient %in% c("30209", "30207")]
 
-# Step 2: Convert to relative abundance
+# Convert to relative abundance
 tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
 
-# Step 3: Agglomerate at genus level
+# Agglomerate at genus level
 tse_genus <- agglomerateByRank(tse_rel, rank = "genus", onRankOnly = TRUE)
 
-# Step 4: Filter to specific genera
+# Filter to specific genera
 keep_genera <- c("g__Eggerthella", "g__Alistipes_A_871400", "g__Alistipes_A_871404")
 tse_filtered <- tse_genus[rowData(tse_genus)$genus %in% keep_genera, ]
 
@@ -3032,34 +2737,34 @@ library(ggrepel)
 library(patchwork)
 library(mia)
 
-# Step 1: Filter and normalize
+# Filter and normalize
 tse <- tse_GG2[, colData(tse_GG2)$Patient %in% c("30207")]
 tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
 tse_species <- agglomerateByRank(tse_rel, rank = "species", onRankOnly = TRUE)
 
-# Step 2: Filter for Alistipes species only
+# Filter for Alistipes species only
 Alistipes_species <- rowData(tse_species)$species[
   grepl("^s__Alistipes", rowData(tse_species)$species)
 ]
 tse_filtered <- tse_species[rowData(tse_species)$species %in% Alistipes_species, ]
 
-# Step 4: Extract metadata
+# Extract metadata
 meta_df <- as.data.frame(colData(tse_filtered))
 meta_df$sample <- rownames(meta_df)
 
-# Step 5: Melt assay data and group "Other"
+# Melt assay data and group "Other"
 df_long <- assay(tse_filtered, "relabundance") %>%
   as.data.frame() %>%
   rownames_to_column("species") %>%
   pivot_longer(-species, names_to = "sample", values_to = "abundance") %>%
   dplyr::left_join(meta_df, by = "sample")
 
-# Step 6: Clean up metadata
+# Clean up metadata
 df_long$Sample_point <- gsub("_", " ", df_long$Sample_point)
 df_long$Sample_point <- factor(df_long$Sample_point, levels = c("Day 1", "Day 36"))
 df_long$Patient <- as.factor(df_long$Patient)
 
-# Step 7: Define color palette (keep your custom colors)
+# Define color palette (keep your custom colors)
 custom_colors <- c(
   "#deebf7", "#9ecae1", "#6baed6", "#3182bd",
   "#8856a7", "#6a51a3", "grey70", "#756bb1"
@@ -3080,7 +2785,7 @@ if (length(species_used) > length(custom_colors)) {
 }
 species_colors <- setNames(custom_colors[1:length(species_used)], species_used)
 
-# Step 8: Pie chart data prep function
+# Pie chart data prep function
 prepare_pie_data <- function(df, patient, day) {
   df %>%
     filter(Patient == patient, Sample_point == day) %>%
@@ -3155,7 +2860,7 @@ pie2 <- ggplot(pie2_data, aes(x = "", y = fraction, fill = species)) +
     legend.position = "right"
   )
 
-# Step 11: Combine with overall title
+# Combine with overall title
 (pie1 + pie2) +
   plot_annotation(
     title = "Alistipes species in 30207 (DC)",
@@ -3222,7 +2927,7 @@ library(stringr)
 
 # Load gene family data
 gene_family_data <- read.delim(
-  "Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt",
+  "paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt",
   header = TRUE
 )
 rownames(gene_family_data) <- gene_family_data[, 1]
@@ -3240,7 +2945,7 @@ colnames(gene_family_data) <- new_colnames
 
 # Load metadata
 metadata <- read.table(
-  "Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/humann3/metadata.TSV",
+  "paht_to/RESULTS/humann3/metadata.TSV",
   header = TRUE, sep = "\t", row.names = 1, check.names = FALSE
 )
 new_rownames <- sapply(rownames(metadata), extract_desired_part)
@@ -3356,8 +3061,8 @@ library(gridExtra)
 
 
 ### Baseline
-clinic_fecal <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/Correlation data Mirte.xlsx", "Correlation_fecal")
-clinic_blood <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/Correlation data Mirte.xlsx", "Correlation_blood_levels")
+clinic_fecal <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_fecal")
+clinic_blood <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_blood_levels")
 
 # Convert first column (patient IDs) to character before using as row names
 clinic_fecal[[1]] <- as.character(clinic_fecal[[1]])
@@ -3414,7 +3119,7 @@ correlation_map <- list(
 library(ggplot2)
 
 # Output PDF
-pdf("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/RESULTS/Correlations/Day1_fecal_blood_correlation_plots.pdf", width = 8, height = 6)
+pdf("paht_to/RESULTS/Correlations/Day1_fecal_blood_correlation_plots.pdf", width = 8, height = 6)
 
 # Loop through fecal variables and correlate with each blood variable
 for (fecal_var in names(correlation_map)) {
@@ -3478,8 +3183,8 @@ library(patchwork)
 library(readxl)
 
 # Load the data
-clinic_fecal <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/Correlation data Mirte.xlsx", "Correlation_fecal")
-clinic_blood <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/Correlation data Mirte.xlsx", "Correlation_blood_levels")
+clinic_fecal <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_fecal")
+clinic_blood <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_blood_levels")
 
 # Convert first column to rownames
 clinic_fecal[[1]] <- as.character(clinic_fecal[[1]])
@@ -3585,7 +3290,7 @@ library(ggplot2)
 library(tibble)
 
 # Load the data
-clinic_blood <- read_excel("Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/Correlation data Mirte.xlsx", 
+clinic_blood <- read_excel("paht_to/Correlation data Mirte.xlsx", 
                            sheet = "Correlation_blood_levels")
 
 # Define your columns of interest explicitly
@@ -3661,7 +3366,7 @@ metric_order <- c("Neutrophils", "Lymphocytes", "Eosinophils", "Monocytes")
 # Function to generate log2 FC plot for one patient
 make_fc_plot <- function(patient_id, title_text, fill_color) {
   clinic_blood <- read_excel(
-    "Z:/PhD CGTG/Experiments/Metagenomics/human_feces_batch1/Correlation data Mirte.xlsx", 
+    "paht_to/Correlation data Mirte.xlsx", 
     sheet = "Correlation_blood_levels"
   )
   
