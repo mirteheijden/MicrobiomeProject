@@ -2,7 +2,7 @@
 #SBATCH --time=72:00:00
 #SBATCH --partition=small
 #SBATCH --ntasks=4
-#SBATCH --account=project_2008347
+#SBATCH --account=project_XXXX
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=180G
 
@@ -23,8 +23,8 @@ nextflow run nf-core/taxprofiler -r 1.1.5 -resume \
    --outdir ./RESULTS  \
    --perform_shortread_qc --save_preprocessed_reads\
    --perform_shortread_hostremoval \
-   --hostremoval_reference /scratch/project_2008347/nextflow_metagenomics/DB/human_CHM13 \
-   --shortread_hostremoval_index /scratch/project_2008347/nextflow_metagenomics/DB/human_CHM13/ \
+   --hostremoval_reference /scratch/project_XXXX/nextflow_metagenomics/DB/human_CHM13 \
+   --shortread_hostremoval_index /scratch/project_XXXX/nextflow_metagenomics/DB/human_CHM13/ \
    --save_hostremoval_unmapped \
    --save_analysis_ready_fastqs \
    --run_profile_standardisation \
