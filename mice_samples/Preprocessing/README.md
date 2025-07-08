@@ -169,9 +169,11 @@ Create humann_regroup_funct.sh and humann_renorm_rename.sh script and put in the
   $ humann_databases --download utility_mapping full /scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR
   
 Run humann_regroup_funct.sh script
+
   $ bash ./SCRIPTS/humann_regroup_funct.sh
 
 Run humann_renorm_rename.sh script
+
   $ bash ./SCRIPTS/humann_renorm_rename.sh
 
 Output files can be found in RESULTS/humann3/final/splitstrat
