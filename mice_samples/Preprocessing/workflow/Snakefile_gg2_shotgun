@@ -38,7 +38,7 @@ rule align_sequences:
         # Maximixe discovery of diverse microbes (local because there might that
         # only adapters were trimmed and local maximizes the discovery of those
         # mappings that might not been able to catch with end-to-end matching).
-        bowtie2 -p {threads} -x /scratch/project_2008347/nextflow_metagenomics/DB/wol2/databases/bowtie2/WoLr2 \
+        bowtie2 -p {threads} -x /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/databases/bowtie2/WoLr2 \
         -1 {input.r1} -2 {input.r2} \
         --very-sensitive --seed 7482 | gzip > {output}
         """
@@ -104,7 +104,7 @@ rule filter_features:
         # in GG2.
         qiime greengenes2 filter-features \
         --i-feature-table {input} --o-filtered-feature-table {output} \
-        --i-reference /scratch/project_2008347/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.taxonomy.asv.nwk.qza
+        --i-reference /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.taxonomy.asv.nwk.qza
         """
 
 # Assign GG2 taxonomy
@@ -126,7 +126,7 @@ rule taxonomic_profiling:
 # Assign taxa based on GG2.
         qiime greengenes2 taxonomy-from-table \
         --i-table {input} --o-classification {output} \
-        --i-reference-taxonomy /scratch/project_2008347/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.taxonomy.asv.nwk.qza
+        --i-reference-taxonomy /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.taxonomy.asv.nwk.qza
         """
 
 # Filter GG2 tree based on data we have
@@ -148,7 +148,7 @@ rule filter_tree:
 # Filter phylogeny
         qiime phylogeny filter-tree \
             --i-table {input} \
-            --i-tree /scratch/project_2008347/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.phylogeny.asv.nwk.qza \
+            --i-tree /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/taxonomy/gg2/2022.10.phylogeny.asv.nwk.qza \
             --o-filtered-tree {output}
         """
 
@@ -178,11 +178,11 @@ rule functional_profiling:
 # Classify genes based on uniref
         woltka classify \
         --input  {params.indir} --output {output} \
-        --coords /scratch/project_2008347/nextflow_metagenomics/DB/wol2/function/coords.txt.xz \
-        --map    /scratch/project_2008347/nextflow_metagenomics/DB/wol2/function/uniref/orf-to-uniref.map.xz \
-        --names  /scratch/project_2008347/nextflow_metagenomics/DB/wol2/function/uniref/uniref_name.txt.xz \
-        --map    /scratch/project_2008347/nextflow_metagenomics/DB/wol2/function/go/uniref/process.map.xz \
-        --names  /scratch/project_2008347/nextflow_metagenomics/DB/wol2/function/go/go_name.txt \
+        --coords /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/function/coords.txt.xz \
+        --map    /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/function/uniref/orf-to-uniref.map.xz \
+        --names  /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/function/uniref/uniref_name.txt.xz \
+        --map    /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/function/go/uniref/process.map.xz \
+        --names  /scratch/project_XXXX/nextflow_metagenomics/DB/wol2/function/go/go_name.txt \
         --rank   uniref,process
         """
 
