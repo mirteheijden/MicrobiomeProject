@@ -16,7 +16,7 @@ library(ggplot2)
 #files
 
 ##TSE from GG2
-tse_GG2 <- loadFromQIIME2("paht_to/RESULTS/GG2/counts.qza", taxonomy = "paht_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="paht_to/RESULTS/GG2/metadata.tsv")
+tse_GG2 <- loadFromQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_GG2 <- colData(tse_GG2)
 rownames(col_data_GG2) <- col_data_GG2$Patient_day
@@ -25,7 +25,7 @@ col_data_GG2 <- as.data.frame(colData(tse_GG2))
 
 
 ##TSE from Metaphlan
-tse_Metaphlan <- loadFromMetaphlan("paht_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="paht_to/RESULTS/Metaphlan/metadata.tsv")
+tse_Metaphlan <- loadFromMetaphlan("path_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="path_to/RESULTS/Metaphlan/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_Metaphlan <- colData(tse_Metaphlan)
 rownames(col_data_Metaphlan) <- col_data_Metaphlan$Patient_day
@@ -53,14 +53,12 @@ tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
 # Extract day 1 samples
 tse_day1 <- tse_rel[, rownames(subset(colData(tse_rel), Sample_point == "Day_1"))]
 
-#assay_names <- assayNames(tse_day1)
 #print(assay_names)
 tse_day1_rel_abund_assay <- assays(tse_day1)$relabundance
 bray_curtis_dist <- vegan::vegdist(t(tse_day1_rel_abund_assay), method = "bray")
 #install.packages("ecodist")
 #library(ecodist)
 bray_curtis_pcoa <- ecodist::pco(bray_curtis_dist)
-#bray_curtis_pcoa$vectors
 #PCoA1 and PCoA2
 bray_curtis_pcoa_df <- data.frame(pcoa1 = bray_curtis_pcoa$vectors[,1], 
                                   pcoa2 = bray_curtis_pcoa$vectors[,2])
@@ -135,14 +133,11 @@ tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
 # Extract day 1 samples
 tse_day1 <- tse_rel[, rownames(subset(colData(tse_rel), Sample_point == "Day_1"))]
 
-#assay_names <- assayNames(tse_day1)
 #print(assay_names)
 tse_day1_rel_abund_assay <- assays(tse_day1)$relabundance
 bray_curtis_dist <- vegan::vegdist(t(tse_day1_rel_abund_assay), method = "bray")
-#install.packages("ecodist")
 #library(ecodist)
 bray_curtis_pcoa <- ecodist::pco(bray_curtis_dist)
-#bray_curtis_pcoa$vectors
 #PCoA1 and PCoA2
 bray_curtis_pcoa_df <- data.frame(pcoa1 = bray_curtis_pcoa$vectors[,1], 
                                   pcoa2 = bray_curtis_pcoa$vectors[,2])
@@ -207,7 +202,6 @@ bray_curtis_plot
 ###################################################################################################
 ## Taxonomic barplots
 
-
 # Load required packages
 library(qiime2R)
 library(mia)
@@ -223,12 +217,10 @@ library(vegan)
 library(ggforce)
 library(RColorBrewer)
 
-
-
 #files
 
 ##TSE from GG2
-tse_GG2 <- importQIIME2("paht_to/RESULTS/GG2/counts.qza", taxonomy = "paht_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="paht_to/RESULTS/GG2/metadata.tsv")
+tse_GG2 <- importQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_GG2 <- colData(tse_GG2)
 rownames(col_data_GG2) <- col_data_GG2$Patient_day
@@ -236,7 +228,7 @@ colData(tse_GG2) <- col_data_GG2
 col_data_GG2 <- as.data.frame(colData(tse_GG2))
 
 ##TSE from Metaphlan
-tse_Metaphlan <- importMetaPhlAn("paht_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="paht_to/RESULTS/Metaphlan/metadata.tsv")
+tse_Metaphlan <- importMetaPhlAn("path_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="path_to/RESULTS/Metaphlan/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_Metaphlan <- colData(tse_Metaphlan)
 rownames(col_data_Metaphlan) <- col_data_Metaphlan$Patient_day
@@ -322,11 +314,11 @@ plotAbundance(tse_filtered, rank = "phylum", assay.type = "relabundance",
     text = element_text(size = 12),
     panel.border = element_blank(),
     panel.background = element_blank(),
-    axis.line = element_line(color = "black")  # ✅ Adds visible axis lines
+    axis.line = element_line(color = "black")  
   ) +
   theme(title = element_text(size = 10)) +
   theme(legend.key.height = unit(0.5, "cm")) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 1), expand = c(0, 0)) +  # ✅ Forces start at 0, no padding
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1), expand = c(0, 0)) +  # forces start at 0, no padding
   labs(title = "Most abundant phylum per patient", x = "", y = "Rel. Abundance (%)") +
   scale_fill_manual(values = custom_colors) +
   guides(fill = guide_legend(title = "Phylum"),
@@ -357,7 +349,7 @@ DC_rel <- tse_rel[, rownames(subset(colData(tse_rel), Response.day78. == "DC"))]
 tse_DC_genus <- mergeFeaturesByRank(DC_rel, rank = "genus", onRankOnly = TRUE)
 top_DC_taxa <- getTopFeatures(tse_DC_genus, top = 12)
 
-# Combine the top 10 taxa (5 from No_DC and 5 from DC)
+# Combine the top taxa 
 top_taxa <- union(top_No_DC_taxa, top_DC_taxa)
 
 # Renaming the "genus" rank to keep only top taxa and label others as "Other"
@@ -436,7 +428,7 @@ plotAbundance(tse_filtered, rank = "genus", assay.type = "relabundance",
   scale_y_continuous(labels = scales::percent, limits = c(0, 1), expand = c(0, 0)) +  # Set y-axis from 0 to 100%
   labs(title = "Most abundant genus per patient", x = "", y = "Rel. Abundance (%)") +
   scale_fill_manual(values = custom_colors) +  # Use custom color palette
-  guides(fill = guide_legend(title = "Genus"),  # Rename the legend for fill to "species"
+  guides(fill = guide_legend(title = "Genus"),  
          color = "none")  # Remove the legend for the outline color
 
 
@@ -465,7 +457,7 @@ DC_rel <- tse_rel[, rownames(subset(colData(tse_rel), Response.day78. == "DC"))]
 tse_DC_species <- mergeFeaturesByRank(DC_rel, rank ="species", onRankOnly=TRUE)
 top_DC_taxa <- getTopFeatures(tse_DC_species, top = 12)
 
-# Combine the top 10 taxa (5 from No_DC and 5 from DC)
+# Combine the top taxa 
 top_taxa <- union(top_No_DC_taxa, top_DC_taxa)
 
 # Renaming the "species" rank to keep only top taxa and label others as "Other"
@@ -544,7 +536,7 @@ plotAbundance(tse_filtered, rank = "species", assay.type = "relabundance",
   scale_y_continuous(labels = scales::percent, limits = c(0, 1), expand = c(0, 0)) +  # Set y-axis from 0 to 100%
   labs(title = "Most abundant species per patient", x = "", y = "Rel. Abundance (%)") +
   scale_fill_manual(values = custom_colors) +  # Use custom color palette
-  guides(fill = guide_legend(title = "Species"),  # Rename the legend for fill to "species"
+  guides(fill = guide_legend(title = "Species"),  
          color = "none")  # Remove the legend for the outline color
 
 
@@ -579,7 +571,7 @@ library(ggplot2)
 #files
 
 ##TSE from GG2
-tse_GG2 <- loadFromQIIME2("paht_to/RESULTS/GG2/counts.qza", taxonomy = "paht_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="paht_to/RESULTS/GG2/metadata.tsv")
+tse_GG2 <- loadFromQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
 col_data_GG2 <- colData(tse_GG2)
 rownames(col_data_GG2) <- col_data_GG2$Patient_day
@@ -622,7 +614,7 @@ out_gg2_species = ancombc(
   global = TRUE
 )
 
-# Extract results for No_DC (which includes log fold changes for the comparison between DC and No_DC)
+# Extract results
 res <- out_gg2_species$res
 
 # Compute log fold change for DC vs No_DC
@@ -757,7 +749,7 @@ out_gg2_genus = ancombc(
   global = TRUE
 )
 
-# Extract results for No_DC (which includes log fold changes for the comparison between DC and No_DC)
+# Extract results 
 res <- out_gg2_genus$res
 
 # Compute log fold change for DC vs No_DC
@@ -876,11 +868,10 @@ library(data.table)
 library(vegan)
 library(ggforce)
 library(ggplot2)
-#install.packages("ggrepel")
 library(ggrepel)
 library(ggsignif)
-library(gridExtra)  # For combining plots
-library(grid)       # For combining plots
+library(gridExtra)  
+library(grid)       
 
 ### genus
 
@@ -909,13 +900,12 @@ rel_abundance_data <- counts_data / total_counts_per_sample
 
 # Check if the relative abundance sums to 1 for each sample
 row_sums <- rowSums(rel_abundance_data)
-summary(row_sums)  # This should now be close to 1 for each sample
+summary(row_sums)  
 
 # Convert colData to a data frame
 metadata_df <- as.data.frame(colData(tse_genus))
 
 # Merge metadata with the transposed relative abundance data
-# Instead of using `tse_rel`, we're using `rel_abundance_data`
 merged_data <- merge(metadata_df, as.data.frame(t(rel_abundance_data)), by.x = "row.names", by.y = "row.names", all.x = TRUE)
 
 # Rename patient 20103 to 20103(PR)
@@ -939,14 +929,12 @@ for (genus in Alistipes_columns) {
   # Plot using ggplot2
   boxplot <- ggplot(merged_data, aes_string(x = "Response.day78.", y = genus)) +
     geom_boxplot(aes(fill = Response.day78.), color = "black", width = 0.3, outlier.color = NA) +
-    #First geom_point for scattered, second for one vertical lien
     geom_point(aes(color = Response.day78.), position = position_jitter(width = 0.1, height = 0), alpha = 0.7, size = 2) +
-    #geom_point(aes(color = Response.day78.), position = position_nudge(x = 0), alpha = 0.7, size = 2) +
     geom_text(
       data = subset(merged_data, Patient == "20103(PR)"),
       aes(x = Response.day78., y = .data[[genus]], label = Patient),
-      hjust = -0.2, # - is left, + is right
-      vjust = 1.5, # below
+      hjust = -0.2,
+      vjust = 1.5, 
       size = 5,
       show.legend = FALSE
     ) +
@@ -970,7 +958,7 @@ for (genus in Alistipes_columns) {
       panel.background = element_blank(),
       plot.background = element_rect(fill = "white", color = NA),
       panel.border = element_blank(),
-      axis.line = element_line(color = "black", size = 0.6)  # ← Moved inside here
+      axis.line = element_line(color = "black", size = 0.6) 
     )
   
   # Add statistics to the boxplot
@@ -1018,13 +1006,12 @@ rel_abundance_data <- counts_data / total_counts_per_sample
 
 # Check if the relative abundance sums to 1 for each sample
 row_sums <- rowSums(rel_abundance_data)
-summary(row_sums)  # This should now be close to 1 for each sample
+summary(row_sums)  
 
 # Convert colData to a data frame
 metadata_df <- as.data.frame(colData(tse_genus))
 
 # Merge metadata with the transposed relative abundance data
-# Instead of using `tse_rel`, we're using `rel_abundance_data`
 merged_data <- merge(metadata_df, as.data.frame(t(rel_abundance_data)), by.x = "row.names", by.y = "row.names", all.x = TRUE)
 
 # Rename patient 20103 to 20103(PR)
@@ -1191,13 +1178,12 @@ rel_abundance_data <- counts_data / total_counts_per_sample
 
 # Check if the relative abundance sums to 1 for each sample
 row_sums <- rowSums(rel_abundance_data)
-summary(row_sums)  # This should now be close to 1 for each sample
+summary(row_sums) 
 
 # Convert colData to a data frame
 metadata_df <- as.data.frame(colData(tse_species))
 
 # Merge metadata with the transposed relative abundance data
-# Instead of using `tse_rel`, we're using `rel_abundance_data`
 merged_data <- merge(metadata_df, as.data.frame(t(rel_abundance_data)), by.x = "row.names", by.y = "row.names", all.x = TRUE)
 
 # Rename patient 20103 to 20103(PR)
@@ -1222,14 +1208,12 @@ for (species in alistipes_columns) {
   # Plot using ggplot2
   boxplot <- ggplot(merged_data, aes_string(x = "Response.day78.", y = species)) +
     geom_boxplot(aes(fill = Response.day78.), color = "black", width = 0.3, outlier.color = NA) +
-    #First geom_point for scattered, second for one vertical lien
     geom_point(aes(color = Response.day78.), position = position_jitter(width = 0.1, height = 0), alpha = 0.7, size = 2) +
-    #geom_point(aes(color = Response.day78.), position = position_nudge(x = 0), alpha = 0.7, size = 2) +
     geom_text(
       data = subset(merged_data, Patient == "20103(PR)"),
       aes(x = Response.day78., y = .data[[species]], label = Patient),
-      hjust = -0.2, # - is left, + is right
-      vjust = 1.5, # below
+      hjust = -0.2, 
+      vjust = 1.5, 
       size = 5,
       show.legend = FALSE
     ) +
@@ -1257,7 +1241,7 @@ for (species in alistipes_columns) {
       panel.background = element_blank(),
       plot.background = element_rect(fill = "white", color = NA),
       panel.border = element_blank(),
-      axis.line = element_line(color = "black", size = 0.6)  # ← Moved inside here
+      axis.line = element_line(color = "black", size = 0.6)   
     )
   
   # Add statistics to the boxplot
@@ -1303,13 +1287,12 @@ rel_abundance_data <- counts_data / total_counts_per_sample
 
 # Check if the relative abundance sums to 1 for each sample
 row_sums <- rowSums(rel_abundance_data)
-summary(row_sums)  # This should now be close to 1 for each sample
+summary(row_sums)  
 
 # Convert colData to a data frame
 metadata_df <- as.data.frame(colData(tse_species))
 
 # Merge metadata with the transposed relative abundance data
-# Instead of using `tse_rel`, we're using `rel_abundance_data`
 merged_data <- merge(metadata_df, as.data.frame(t(rel_abundance_data)), by.x = "row.names", by.y = "row.names", all.x = TRUE)
 
 # Rename patient 20103 to 20103(PR)
@@ -1473,13 +1456,13 @@ rel_abundance_data <- counts_data / total_counts_per_sample
 
 # Check if the relative abundance sums to 1 for each sample
 row_sums <- rowSums(rel_abundance_data)
-summary(row_sums)  # This should now be close to 1 for each sample
+summary(row_sums) 
 
 assay(tse, "relabundance") <- rel_abundance_data
 
 # Include only genus present in at least 4 or more patients
 relabund_data <- assay(tse, "relabundance")
-# Make sure there are no NAs, replace them with 0 (or handle as needed)
+# Make sure there are no NAs
 relabund_data[is.na(relabund_data)] <- 0
 genus_to_keep <- rowSums(relabund_data > 0) >= 4
 tse <- tse[genus_to_keep, ]
@@ -1537,7 +1520,7 @@ library(SPRING)
 # Using relative abundance
 set.seed(13075)
 spring_est <- SPRING(
-  t(assay(tse, "relabundance")),  # Using relative abundance
+  t(assay(tse, "relabundance")),  
   Rmethod = "approx",
   thresh = 0.5,
   lambdaseq = "data-specific"
@@ -1589,7 +1572,7 @@ library(SPRING)
 
 # Remove the "g__" prefix from the row names in the 'relabundance' assay data
 # Extract the relative abundance assay data
-assay_data <- assay(tse, "relabundance")  # Use the 'relabundance' assay
+assay_data <- assay(tse, "relabundance")  
 
 # Remove the "g__" prefix from the genus names
 new_rownames <- gsub("^g__", "", rownames(assay_data))
@@ -1599,7 +1582,7 @@ rownames(assay_data) <- new_rownames
 rownames(assay_data)
 
 # Assign the modified assay data back to the tse object (without changing the dimensions)
-assay(tse, "relabundance", withDimnames = FALSE) <- assay_data  # Assign to 'relabundance' assay
+assay(tse, "relabundance", withDimnames = FALSE) <- assay_data  
 
 # Update the row names of the 'tse' object itself
 rownames(tse) <- new_rownames
@@ -1611,10 +1594,8 @@ column_sums <- colSums(assay(tse, "relabundance"))
 # Print the summary to ensure sums are approximately 1
 summary(column_sums)  
 
-# We use the prepared data, genus filters, and clr and log10 transformations done on relative abundance
-
 netcomi_net <- netConstruct(
-  t(assay(tse, "relabundance")),  # Use relative abundance here
+  t(assay(tse, "relabundance")),  
   taxRank = "genus",
   filtTax = "numbSamp",
   filtTaxPar = list(numbSamp = 0.4),
@@ -1693,6 +1674,7 @@ legend("topright",                 # Legend position
        horiz = TRUE)
 
 
+
 #####################################################################################################
 ############ Functional analysis - Maaslin 
 library(mia)
@@ -1711,15 +1693,11 @@ library(dplyr)
 
 # Dot plot - KEGG
 # Gene family data
-gene_family_data <- read.delim("paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
+gene_family_data <- read.delim("path_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
 
 #Set column 1 as rownames
 rownames(gene_family_data) <- gene_family_data[, 1]
 gene_family_data <- gene_family_data[, -1]
-
-#modif column name to match metadata (if necessary)
-#in this example, I want to remove partial naming of the samples due to the pre-processing step.
-library(stringr)
 
 # Function to extract the desired part of the column names
 extract_desired_part <- function(column_name) {
@@ -1738,7 +1716,7 @@ print(colnames(gene_family_data))
 
 
 ## Metadata
-metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
+metadata <- read.table("path_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
 
 # Function to extract the desired part of the row names
 extract_desired_part <- function(row_name) {
@@ -1754,7 +1732,6 @@ rownames(metadata) <- new_rownames
 
 # Print the new row names to verify
 print(rownames(metadata))
-
 
 
 # Ensure that both identifiers are sorted and aligned
@@ -1791,11 +1768,9 @@ maaslin2_out <- Maaslin2(input_data = as.data.frame(t(assay(tse))),
                          output = "EC_1",
                          transform = "AST",
                          fixed_effects = c("Response.day78.", "DC", "No_DC"),
-                         # you can also fit MLM by specifying random effects
                          # random_effects = c(...),
                          normalization = "TSS",
                          standardize = FALSE,
-                         # filtering was previously performed
                          min_prevalence = 0)
 
 library(dplyr)
@@ -1852,7 +1827,7 @@ plot_data <- significant_results %>%
   mutate(
     Feature = rownames(significant_results),
     GeneRatio = rowSums(abundance_matrix_subset[rownames(significant_results), ] > 0) / ncol(abundance_matrix_subset),
-    Category = "KO"  # optional, can be used for faceting
+    Category = "KO"  # optional
   )
 
 # Clean feature names for y-axis labels
@@ -1865,7 +1840,7 @@ plot_data <- plot_data %>%
 
 # Dot Plot
 ggplot(plot_data, aes(x = GeneRatio, y = Feature)) +
-  geom_point(aes(color = pval), size = 4) +  # All dots same size
+  geom_point(aes(color = pval), size = 4) + 
   scale_color_gradient(low = "#2E8B57", high = "skyblue") +
   theme_bw(base_size = 14) +
   labs(
@@ -1883,18 +1858,18 @@ ggplot(plot_data, aes(x = GeneRatio, y = Feature)) +
 
 
 
-################ barplots 
+
+## Heatmap Arginine
+library(pheatmap)
+library(stringr)
 
 # KO
 gene_family_data <- read.delim("path_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
-
 
 #Set column 1 as rownames
 rownames(gene_family_data) <- gene_family_data[, 1]
 gene_family_data <- gene_family_data[, -1]
 
-#modif column name to match metadata 
-library(stringr)
 
 # Function to extract the desired part of the column names
 extract_desired_part <- function(column_name) {
@@ -1913,7 +1888,7 @@ print(colnames(gene_family_data))
 
 
 ## Metadata
-metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
+metadata <- read.table("path_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
 
 # Function to extract the desired part of the row names
 extract_desired_part <- function(row_name) {
@@ -1973,84 +1948,83 @@ merged_data <- merged_data %>%
 # DC first in boxplot
 merged_data$Response.day78. <- factor(merged_data$Response.day78., levels = c("DC", "No_DC"))
 
-# Filter species columns that start with "K00929"
-K00929_columns <- grep("^K00929", names(merged_data), value = TRUE)
+# Extract only the KO columns from merged_data
+columns_of_interest <- grep("^K03758|^K01478", names(merged_data), value = TRUE)
 
-# Loop over only K00929 species columns and plot in RStudio
-for (species in K00929_columns) {
-  # Perform Wilcoxon rank sum test
-  wilcox_result <- wilcox.test(as.formula(paste(species, "~ Response.day78.")),
-                               data = merged_data,
-                               subset = merged_data$Response.day78. %in% c("DC", "No_DC"),
-                               exact = FALSE)
-  
-  # Plot using ggplot2
-  boxplot <- ggplot(merged_data, aes_string(x = "Response.day78.", y = species)) +
-    geom_boxplot(aes(fill = Response.day78.), color = "black", width = 0.3, outlier.color = NA) +
-    #First geom_point for scattered, second for one vertical lien
-    geom_point(aes(color = Response.day78.), position = position_jitter(width = 0.1, height = 0), alpha = 0.7, size = 2) +
-    #geom_point(aes(color = Response.day78.), position = position_nudge(x = 0), alpha = 0.7, size = 2) +
-    geom_text(
-      data = subset(merged_data, Patient == "20103(PR)"),
-      aes(x = Response.day78., y = .data[[species]], label = Patient),
-      hjust = -0.2, # - is left, + is right
-      vjust = 1.5, # below
-      size = 5,
-      show.legend = FALSE
-    ) +
-    labs(x = NULL, y = "Gene count", title = "Butyrate kinase
- (K00929)") +
-    scale_fill_manual(values = c("DC" = "skyblue", "No_DC" = "#9DC183")) +
-    scale_color_manual(values = c("DC" = "darkblue", "No_DC" = "darkgreen")) +
-    theme_minimal() +
-    scale_y_continuous(expand = expansion(mult = c(0.1, 0.1))) +
-    theme(
-      plot.title = element_text(face = "plain", size = 18, hjust = 0.5, margin = margin(b = 10)),
-      plot.title.position = "plot",
-      axis.title.x = element_text(size = 14, margin = margin(t = 10)),
-      axis.title.y = element_text(size = 16, margin = margin(r = 10)),
-      axis.text = element_text(size = 12),
-      axis.text.x = element_text(margin = margin(t = 5) , color = "black", size = 14),
-      axis.text.y = element_text(size = 16),
-      legend.position = "none",
-      text = element_text(size = 12),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      panel.background = element_blank(),
-      plot.background = element_rect(fill = "white", color = NA),
-      panel.border = element_blank(),
-      axis.line = element_line(color = "black", size = 0.6)  # ← Moved inside here
-    )
-  
-  
-  # Add statistics to the boxplot
-  #boxplot <- boxplot +
-  #  geom_signif(test = "wilcox.test",
-  #              comparisons = list(c("DC", "No_DC")),
-  #              map_signif_level = c("***" = 0.001, "**" = 0.01, "*" = 0.05),
-  #              step_increase = 0.1,
-  #              color = "black",
-  #              size = 1,
-  #              textsize = 6)
-  
-  # Print the plot in RStudio
-  print(boxplot)
-}
+# Confirm they exist
+print(columns_of_interest)
+
+# Extract those columns and force it into a data frame
+heatmap_matrix <- as.data.frame(merged_data[, columns_of_interest, drop = FALSE])
+
+# Assign rownames using Patient info
+heatmap_matrix$Patient <- merged_data$Patient
+heatmap_matrix <- column_to_rownames(heatmap_matrix, "Patient")
+
+# Rename patients
+name_mapping <- c(
+  "20211" = "No_DC_20211",
+  "20104" = "No_DC_20104",
+  "30209" = "No_DC_30209",
+  "20212" = "DC_20212",
+  "20206" = "DC_20206",
+  "20108" = "DC_20108",
+  "30207" = "DC_30207",
+  "20103(PR)" = "DC_20103(PR)"
+)
+
+# Apply renaming
+matched_names <- intersect(rownames(heatmap_matrix), names(name_mapping))
+rownames(heatmap_matrix)[rownames(heatmap_matrix) %in% matched_names] <- name_mapping[matched_names]
+
+# Reorder rows
+ordered_patients <- c("No_DC_20211", "No_DC_20104", "No_DC_30209",
+                      "DC_20212", "DC_20206", "DC_20108", "DC_30207", "DC_20103(PR)")
+
+# Filter only available patients
+ordered_patients <- ordered_patients[ordered_patients %in% rownames(heatmap_matrix)]
+heatmap_matrix <- heatmap_matrix[ordered_patients, , drop = FALSE]
+
+# Rename KO column names directly
+colnames(heatmap_matrix) <- gsub(
+  pattern = "K01478.*",
+  replacement = "Arginine deiminase
+  (K01478)",
+  x = colnames(heatmap_matrix)
+)
+
+colnames(heatmap_matrix) <- gsub(
+  pattern = "K03758.*",
+  replacement = "Arginine ornithine antiporter 
+  / lysine permease
+  (K03758)",
+  x = colnames(heatmap_matrix)
+)
+
+# Color palette
+color_palette <- colorRampPalette(c("skyblue", "#2E8B57"))(100)
+
+# Your heatmap plot
+pheatmap(heatmap_matrix,
+         cluster_rows = TRUE,
+         cluster_cols = FALSE,
+         color = color_palette,
+         fontsize_row = 12,
+         fontsize_col = 20,
+         angle_col = 45,
+         main = "Arginine increase in No_DC",
+         border_color = "black",
+         fontsize = 18,
+         legend = TRUE)  
 
 
-
-
-## Patched plots
+################ barplots 
 # KO
-gene_family_data <- read.delim("paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
-
+gene_family_data <- read.delim("path_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
 
 #Set column 1 as rownames
 rownames(gene_family_data) <- gene_family_data[, 1]
 gene_family_data <- gene_family_data[, -1]
-
-#modif column name to match metadata (if necessary)
-library(stringr)
 
 # Function to extract the desired part of the column names
 extract_desired_part <- function(column_name) {
@@ -2069,7 +2043,7 @@ print(colnames(gene_family_data))
 
 
 ## Metadata
-metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
+metadata <- read.table("path_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
 
 # Function to extract the desired part of the row names
 extract_desired_part <- function(row_name) {
@@ -2211,7 +2185,7 @@ print(combined_plot)
 
 
 
-## Patched violin plots
+## SCFA Serum analysis violin plots
 library(readxl)
 library(dplyr)
 library(tidyr)
@@ -2220,7 +2194,7 @@ library(ggsignif)
 library(patchwork)
 
 # Load data
-serum <- read_excel("paht_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte)
+serum <- read_excel("path_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte")
 
 # Define patient columns
 patient_columns <- c("20211", "20104", "30209", "20212", "20206", "20108", "20103(PR)", "30209")
@@ -2294,329 +2268,7 @@ print(combined_plot)
 
 
 
-## Heatmap Arginine
-library(pheatmap)
-
-# KO
-gene_family_data <- read.delim("paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
-
-#Set column 1 as rownames
-rownames(gene_family_data) <- gene_family_data[, 1]
-gene_family_data <- gene_family_data[, -1]
-
-#modif column name to match metadata (if necessary)
-#in this example, I want to remove partial naming of the samples due to the pre-processing step.
-library(stringr)
-
-# Function to extract the desired part of the column names
-extract_desired_part <- function(column_name) {
-  # Use regular expression to extract part starting with 000 and ending before _
-  str_extract(column_name, "000[^_]*")
-}
-
-# Apply the function to all column names of the dataframe
-new_colnames <- sapply(colnames(gene_family_data), extract_desired_part)
-
-# Set the new column names to the dataframe
-colnames(gene_family_data) <- new_colnames
-
-# Print the new column names to verify
-print(colnames(gene_family_data))
-
-
-## Metadata
-metadata <- read.table("paht_to/RESULTS/humann3/metadata.TSV", header = TRUE, sep = "\t", row.names = 1, check.names=FALSE)
-
-# Function to extract the desired part of the row names
-extract_desired_part <- function(row_name) {
-  # Use regular expression to extract part starting with 000 and ending before _
-  str_extract(row_name, "000[^_]*")
-}
-
-# Apply the function to all row names of the dataframe
-new_rownames <- sapply(rownames(metadata), extract_desired_part)
-
-# Set the new row names to the dataframe
-rownames(metadata) <- new_rownames
-
-# Print the new row names to verify
-print(rownames(metadata))
-
-
-# Ensure that both identifiers are sorted and aligned
-# Get common identifiers
-common_ids <- intersect(colnames(gene_family_data), rownames(metadata))
-
-# Filter and reorder columns and rows to match the common identifiers
-gene_family_data <- gene_family_data[, common_ids,drop=FALSE]
-metadata <- metadata[common_ids, , drop = FALSE]
-
-# Ensure that the row names of the metadata match the column names of the count data
-stopifnot(all(colnames(gene_family_data) == rownames(metadata)))
-
-# option 4, w/o loadfromhumann
-# Create a TreeSummarizedExperiment object
-tse <- TreeSummarizedExperiment(
-  assays = list(counts = (gene_family_data)),
-  colData = metadata
-)
-
-# Extract day 1 samples and samples with a known disease outcome
-tse <- tse[, which(colData(tse)$Sample_point == "Day_1")]
-tse <- tse[, which(colData(tse)$'Response(day78)' %in% c("DC", "No_DC"))]
-rownames(tse) <- gsub("[^[:alnum:]]", "_", rownames(tse))
-
-
-# Check the TSE object
-print(tse)
-
-# Convert colData to a data frame
-metadata_df <- as.data.frame(colData(tse))
-
-# Transpose assay data
-tse_assay <- t(assay(tse))
-
-# Merge metadata with transposed assay data
-merged_data <- merge(metadata_df, as.data.frame(tse_assay), by.x = "row.names", by.y = "row.names", all.x = TRUE)
-
-# Rename patient 20103 to 20103(PR)
-merged_data <- merged_data %>%
-  mutate(Patient = ifelse(Patient == 20103, "20103(PR)", as.character(Patient)))
-
-# DC first in boxplot
-merged_data$Response.day78. <- factor(merged_data$Response.day78., levels = c("DC", "No_DC"))
-
-# Extract only the KO columns from merged_data
-columns_of_interest <- grep("^K03758|^K01478", names(merged_data), value = TRUE)
-
-# Confirm they exist
-print(columns_of_interest)
-
-# Extract those columns and force it into a data frame
-heatmap_matrix <- as.data.frame(merged_data[, columns_of_interest, drop = FALSE])
-
-# Assign rownames using Patient info
-heatmap_matrix$Patient <- merged_data$Patient
-heatmap_matrix <- column_to_rownames(heatmap_matrix, "Patient")
-
-# Rename patients
-name_mapping <- c(
-  "20211" = "No_DC_20211",
-  "20104" = "No_DC_20104",
-  "30209" = "No_DC_30209",
-  "20212" = "DC_20212",
-  "20206" = "DC_20206",
-  "20108" = "DC_20108",
-  "30207" = "DC_30207",
-  "20103(PR)" = "DC_20103(PR)"
-)
-
-# Apply renaming
-matched_names <- intersect(rownames(heatmap_matrix), names(name_mapping))
-rownames(heatmap_matrix)[rownames(heatmap_matrix) %in% matched_names] <- name_mapping[matched_names]
-
-# Reorder rows
-ordered_patients <- c("No_DC_20211", "No_DC_20104", "No_DC_30209",
-                      "DC_20212", "DC_20206", "DC_20108", "DC_30207", "DC_20103(PR)")
-
-# Filter only available patients
-ordered_patients <- ordered_patients[ordered_patients %in% rownames(heatmap_matrix)]
-heatmap_matrix <- heatmap_matrix[ordered_patients, , drop = FALSE]
-
-# Rename KO column names directly
-colnames(heatmap_matrix) <- gsub(
-  pattern = "K01478.*",
-  replacement = "Arginine deiminase
-  (K01478)",
-  x = colnames(heatmap_matrix)
-)
-
-colnames(heatmap_matrix) <- gsub(
-  pattern = "K03758.*",
-  replacement = "Arginine ornithine antiporter 
-  / lysine permease
-  (K03758)",
-  x = colnames(heatmap_matrix)
-)
-
-# Color palette
-color_palette <- colorRampPalette(c("skyblue", "#2E8B57"))(100)
-
-# Your heatmap plot
-pheatmap(heatmap_matrix,
-         cluster_rows = TRUE,
-         cluster_cols = FALSE,
-         color = color_palette,
-         fontsize_row = 12,
-         fontsize_col = 20,
-         angle_col = 45,
-         main = "Arginine increase in No_DC",
-         border_color = "black",
-         fontsize = 18,
-         legend = TRUE)  # ensure legend is shown
-
-
-
-
-#####################################################################################################
-############ SCFA Serum analysis
-
-### heatmap
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(pheatmap)
-library(RColorBrewer)
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(pheatmap)
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(pheatmap)
-
-# Read SCFA data
-serum <- read_excel("paht_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte)
-
-# Original patient IDs
-original_patients <- c("20211", "20104", "30209", "20212", "20206", "20108", "30207", "20103(PR)")
-
-# Rename mapping
-name_mapping <- c(
-  "20211" = "No_DC_20211",
-  "20104" = "No_DC_20104",
-  "30209" = "No_DC_30209",
-  "20212" = "DC_20212",
-  "20206" = "DC_20206",
-  "20108" = "DC_20108",
-  "30207" = "DC_30207",
-  "20103(PR)" = "DC_20103(PR)"
-)
-
-# Desired display order
-ordered_patients <- c("No_DC_20211", "No_DC_20104", "No_DC_30209",
-                      "DC_20212", "DC_20206", "DC_20108", "DC_30207", "DC_20103(PR)")
-
-# Metabolites to exclude
-excluded_metabolites <- c("3-Methylvaleric Acid", "Acetic Acid", "Valeric Acid", "Isovaleric Acid", "2-Methylvaleric Acid")
-
-# Filter and rename
-serum_clean <- serum %>%
-  filter(!Metabolites %in% excluded_metabolites) %>%
-  select(Metabolites, all_of(original_patients))
-
-colnames(serum_clean)[-1] <- name_mapping[colnames(serum_clean)[-1]]
-
-# Convert to matrix and reorder columns
-serum_matrix <- serum_clean %>%
-  column_to_rownames("Metabolites") %>%
-  as.matrix()
-
-serum_matrix <- serum_matrix[, ordered_patients]
-
-# Replace NA with 0
-serum_matrix[is.na(serum_matrix)] <- 0
-
-# Transpose: patients on y-axis, metabolites on x-axis
-serum_matrix_t <- t(serum_matrix)
-
-# Custom color palette
-color_palette <- colorRampPalette(c("skyblue", "red"))(100)
-
-# Plot heatmap
-pheatmap(serum_matrix_t,
-         cluster_rows = FALSE,
-         cluster_cols = TRUE,
-         color = color_palette,
-         fontsize_row = 12,
-         fontsize_col = 12,
-         main = "Log10 SCFA Concentrations (µM)",
-         border_color = NA)
-
-
-
-
-
-### wilcoxon barplots
-library(readxl)
-library(ggplot2)
-library(ggsignif)
-library(dplyr)
-library(tidyr)
-
-
-serum <- read_excel("paht_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte)
-
-# Define the patient columns (make sure to update this list if needed)
-patient_columns <- c("20211", "20104", "30209", "20212", "20206", "20108", "20103(PR)", "30209")  # Update this list if needed
-
-# Remove the "3-Methylvaleric Acid" row (where Metabolites == "3-Methylvaleric Acid")
-serum_clean <- serum %>%
-  select(Metabolites, all_of(patient_columns)) %>%
-  filter(Metabolites != "3-Methylvaleric Acid") %>%  # Exclude row with "3-Methylvaleric Acid"
-  pivot_longer(-Metabolites, names_to = "Patient", values_to = "Value")
-
-# Assign group labels (No_DC vs DC)
-serum_clean <- serum_clean %>%
-  mutate(Response = ifelse(Patient %in% c("20211", "20104", "30209"), "No_DC", "DC"))
-
-# Loop over metabolites
-unique_metabolites <- unique(serum_clean$Metabolites)
-
-for (met in unique_metabolites) {
-  sub_df <- filter(serum_clean, Metabolites == met)
-  
-  # Perform Wilcoxon test
-  wilcox_result <- wilcox.test(Value ~ Response, data = sub_df, exact = FALSE)
-  
-  # Create the violin plot
-  violin_plot <- ggplot(sub_df, aes(x = Response, y = Value)) +
-    geom_violin(aes(fill = Response), color = "black", width = 0.3) +  # Use geom_violin instead of geom_boxplot
-    geom_point(aes(color = Response), position = position_jitter(width = 0.1), size = 2, alpha = 0.7) +
-    labs(
-      title = paste("", met),
-      x = NULL,
-      y = "Concentration (µM)"
-    ) +
-    scale_fill_manual(values = c("DC" = "darkturquoise", "No_DC" = "pink")) +
-    scale_color_manual(values = c("DC" = "darkblue", "No_DC" = "deeppink")) +
-    theme_minimal() +
-    scale_y_continuous(expand = expansion(mult = c(0.1, 0.1))) +
-    theme(
-      plot.title = element_text(face = "bold", size = 18, hjust = 0.5, margin = margin(b = 10)),
-      axis.title.x = element_text(size = 14, margin = margin(t = 10)),
-      axis.title.y = element_text(size = 16, margin = margin(r = 10)),
-      axis.text = element_text(size = 12),
-      axis.text.x = element_text(margin = margin(t = 5), color = "black", size = 14),
-      axis.text.y = element_text(size = 16),
-      legend.position = "none"
-    ) +
-    geom_signif(
-      test = "wilcox.test",
-      comparisons = list(c("DC", "No_DC")),
-      map_signif_level = TRUE,
-      step_increase = 0.1,
-      color = "black",
-      size = 1,
-      textsize = 5
-    ) +
-    # Add label for Patient 20103
-    geom_text(
-      data = subset(sub_df, Patient == "20103(PR)"),  # Filter data for Patient 20103
-      aes(x = Response, y = Value, label = Patient),
-      hjust = -0.2,  # Horizontal adjustment (left)
-      vjust = 1.5,   # Vertical adjustment (above)
-      size = 5,
-      show.legend = FALSE
-    )
-  
-  # Print the plot
-  print(violin_plot)
-}
-
-
-#################### Taxonomy over time (30209, 30207)
+#################### Eggerthella and Alistipes over time (30209, 30207)
 ##  Genus
 library(ggplot2)
 library(patchwork)
@@ -2778,7 +2430,6 @@ species_used <- df_long %>%
   pull(species)
 
 # Assign custom colors to species with >0% abundance
-# If more species than colors, repeat colors (or extend palette manually)
 if (length(species_used) > length(custom_colors)) {
   warning("More species than colors! Repeating colors. You may want to expand 'custom_colors'.")
   custom_colors <- rep(custom_colors, length.out = length(species_used))
@@ -2870,13 +2521,13 @@ pie2 <- ggplot(pie2_data, aes(x = "", y = fraction, fill = species)) +
   )
 
 
-# same code, 2nd plot (no %)
+# Plot without %
 pie1_nolegend <- ggplot(pie1_data, aes(x = "", y = fraction, fill = species)) +
   geom_col(width = 1, color = "white") +
   coord_polar("y") +
   scale_fill_manual(
     values = species_colors1,
-    drop = FALSE  # no labels here
+    drop = FALSE  
   ) +
   labs(title = "Day 1") +
   theme_void() +
@@ -2927,7 +2578,7 @@ library(stringr)
 
 # Load gene family data
 gene_family_data <- read.delim(
-  "paht_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt",
+  "path_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt",
   header = TRUE
 )
 rownames(gene_family_data) <- gene_family_data[, 1]
@@ -2945,7 +2596,7 @@ colnames(gene_family_data) <- new_colnames
 
 # Load metadata
 metadata <- read.table(
-  "paht_to/RESULTS/humann3/metadata.TSV",
+  "path_to/RESULTS/humann3/metadata.TSV",
   header = TRUE, sep = "\t", row.names = 1, check.names = FALSE
 )
 new_rownames <- sapply(rownames(metadata), extract_desired_part)
@@ -3055,136 +2706,13 @@ for (i in seq_along(ko_list)) {
 
 ############################### Clinical correlations, BL ###################
 
-# Required libraries
-library(ggplot2)
-library(gridExtra)
-
-
-### Baseline
-clinic_fecal <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_fecal")
-clinic_blood <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_blood_levels")
-
-# Convert first column (patient IDs) to character before using as row names
-clinic_fecal[[1]] <- as.character(clinic_fecal[[1]])
-clinic_blood[[1]] <- as.character(clinic_blood[[1]])
-
-# Remove any duplicates
-clinic_fecal <- clinic_fecal[!duplicated(clinic_fecal[[1]]), ]
-clinic_blood <- clinic_blood[!duplicated(clinic_blood[[1]]), ]
-
-# Assign row names
-rownames(clinic_fecal) <- clinic_fecal[[1]]
-rownames(clinic_blood) <- clinic_blood[[1]]
-
-# Drop first column (now used as rownames)
-clinic_fecal <- clinic_fecal[, -1]
-clinic_blood <- clinic_blood[, -1]
-
-# Ensure both datasets have same patients
-common_patients <- intersect(rownames(clinic_fecal), rownames(clinic_blood))
-clinic_fecal <- clinic_fecal[common_patients, ]
-clinic_blood <- clinic_blood[common_patients, ]
-
-# Define your fecal → blood correlations
-correlation_map <- list(
-  "Alistipes_genus_day1" = c("Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", "Lymphocyte_count_day1", "Monocyte_count_day1",
-                             "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", "Monocyte/leukocyte_count_day1",
-                             "Basophil/leukocyte_count_day1", "Eosinophil/leukocyte_count_day1"),
-  
-  "Butyrate_kinase_day1" = c("Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", "Lymphocyte_count_day1", "Monocyte_count_day1",
-                             "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", "Monocyte/leukocyte_count_day1",
-                             "Basophil/leukocyte_count_day1", "Eosinophil/leukocyte_count_day1"),
-  
-  "Acetate_CoA_day1" = c("Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", "Lymphocyte_count_day1", "Monocyte_count_day1",
-                         "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", "Monocyte/leukocyte_count_day1",
-                         "Basophil/leukocyte_count_day1", "Eosinophil/leukocyte_count_day1"),
-  
-  "SCFA_transporter_day1" = c("Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", "Lymphocyte_count_day1", "Monocyte_count_day1",
-                              "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", "Monocyte/leukocyte_count_day1",
-                              "Basophil/leukocyte_count_day1", "Eosinophil/leukocyte_count_day1"),
-  
-  "Butyric-isobutyric Acid (Day1)" = c("Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", "Lymphocyte_count_day1", "Monocyte_count_day1",
-                                       "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", "Monocyte/leukocyte_count_day1",
-                                       "Basophil/leukocyte_count_day1", "Eosinophil/leukocyte_count_day1"),
-  
-  "2-Methylvaleric Acid (Day1)" = c("Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", "Lymphocyte_count_day1", "Monocyte_count_day1",
-                                    "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", "Monocyte/leukocyte_count_day1",
-                                    "Basophil/leukocyte_count_day1", "Eosinophil/leukocyte_count_day1"),
-  
-  "Propionic Acid (Day1)" = c("Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", "Lymphocyte_count_day1", "Monocyte_count_day1",
-                              "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", "Monocyte/leukocyte_count_day1",
-                              "Basophil/leukocyte_count_day1", "Eosinophil/leukocyte_count_day1")
-)
-
-library(ggplot2)
-
-# Output PDF
-pdf("paht_to/RESULTS/Correlations/Day1_fecal_blood_correlation_plots.pdf", width = 8, height = 6)
-
-# Loop through fecal variables and correlate with each blood variable
-for (fecal_var in names(correlation_map)) {
-  for (blood_var in correlation_map[[fecal_var]]) {
-    
-    # Extract and clean data
-    x <- as.numeric(clinic_fecal[[fecal_var]])
-    y <- as.numeric(clinic_blood[[blood_var]])
-    df <- data.frame(x = x, y = y)
-    df <- df[complete.cases(df), ]  # remove rows with NA
-    
-    if (nrow(df) < 3) next  # skip if too few data points
-    
-    # Normality check
-    norm_x <- shapiro.test(df$x)$p.value > 0.05
-    norm_y <- shapiro.test(df$y)$p.value > 0.05
-    method <- ifelse(norm_x && norm_y, "pearson", "spearman")
-    
-    # Correlation
-    cor_result <- cor.test(df$x, df$y, method = method)
-    cor_val <- signif(cor_result$estimate, 3)
-    p_val <- signif(cor_result$p.value, 3)
-    
-    # Plot
-    p <- ggplot(df, aes(x = x, y = y)) +
-      geom_point(color = "#2E8B57", alpha = 0.8, size = 3) +
-      geom_smooth(method = "lm", se = TRUE, color = "black", linetype = "dashed", fill = "lightgrey") +
-      labs(
-        x = fecal_var,
-        y = blood_var,
-        title = paste(fecal_var, "vs", blood_var),
-        subtitle = paste("Method:", method, "| r =", cor_val, "| p =", ifelse(p_val < 0.001, "< 0.001", p_val))
-      ) +
-      theme(
-        plot.title = element_text(face = "bold", size = 16, hjust = 0.5, margin = margin(b = 5)),
-        plot.subtitle = element_text(size = 13, hjust = 0.5, margin = margin(b = 10)),
-        plot.title.position = "plot",
-        axis.title.x = element_text(size = 14, margin = margin(t = 10)),
-        axis.title.y = element_text(size = 16, margin = margin(r = 10)),
-        axis.text = element_text(size = 12),
-        axis.text.x = element_text(margin = margin(t = 5), color = "black", size = 14),
-        axis.text.y = element_text(size = 16),
-        legend.position = "none",
-        text = element_text(size = 12),
-        panel.background = element_rect(fill = "white", color = NA),
-        panel.grid = element_blank(),
-        panel.border = element_blank(),
-        axis.line = element_line(color = "black")
-      )
-    
-    print(p)
-  }
-}
-
-dev.off()
-
-
-# Make plots of interest in Rstudio 
 library(ggplot2)
 library(patchwork)
 library(readxl)
 
 # Load the data
-clinic_fecal <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_fecal")
-clinic_blood <- read_excel("paht_to/Correlation data Mirte.xlsx", "Correlation_blood_levels")
+clinic_fecal <- read_excel("path_to/Correlation data Mirte.xlsx", "Correlation_fecal")
+clinic_blood <- read_excel("path_to/Correlation data Mirte.xlsx", "Correlation_blood_levels")
 
 # Convert first column to rownames
 clinic_fecal[[1]] <- as.character(clinic_fecal[[1]])
@@ -3276,78 +2804,8 @@ if (length(plot_list) == 2) {
 
 
 
-
-
-
-
 ### Clinical relations, Day1 vs Day36, paired barplot ###################
 
-# Load libraries
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(tibble)
-
-# Load the data
-clinic_blood <- read_excel("paht_to/Correlation data Mirte.xlsx", 
-                           sheet = "Correlation_blood_levels")
-
-# Define your columns of interest explicitly
-blood_columns <- c(
-  "Basophiles_day1", "Neutrophils_day1", "Eosinophils_day1", 
-  "Lymphocyte_count_day1", "Monocyte_count_day1", 
-  "Neutrophil/leukocyte_count_day1", "Lymphocyte/leukocyte_count_day1", 
-  "Monocyte/leukocyte_count_day1", "Basophil/leukocyte_count_day1", 
-  "Eosinophil/leukocyte_count_day1", 
-  "Basophiles_day36", "Neutrophils_day36", "Eosinophils_day36", 
-  "Lymphocyte_count_day36", "Monocyte_count_day36", 
-  "Neutrophil/leukocyte_count_day36", "Lymphocyte/leukocyte_count_day36", 
-  "Monocyte/leukocyte_count_day36", "Basophil/leukocyte_count_day36", 
-  "Eosinophil/leukocyte_count_day36"
-)
-
-
-# Filter and clean data
-clinic_blood <- clinic_blood %>%
-  rename(Patient = 1) %>%
-  filter(Patient %in% c("30207", "30209")) %>%
-  select(Patient, all_of(blood_columns)) %>%
-  column_to_rownames("Patient")
-
-# Reset rownames as a column for pivoting
-clinic_blood$Patient <- rownames(clinic_blood)
-
-# Replace comma decimal separators with dot, then convert to numeric
-clinic_blood <- clinic_blood %>%
-  mutate(across(all_of(blood_columns), ~ as.numeric(gsub(",", ".", .))))
-
-# Convert to long format
-clinic_long <- clinic_blood %>%
-  pivot_longer(
-    cols = -Patient,
-    names_to = "Variable",
-    values_to = "Value"
-  ) %>%
-  mutate(
-    Timepoint = ifelse(grepl("day1", Variable), "Day1", "Day36"),
-    Metric = gsub("_day1|_day36", "", Variable),
-    Group = paste(Patient, Timepoint, sep = ".")  # Create ordering group
-  )
-
-# Set Group as a factor with the desired order
-clinic_long$Group <- factor(clinic_long$Group, 
-                            levels = c("30207.Day1", "30207.Day36", "30209.Day1", "30209.Day36"))
-
-# Create the grouped barplot
-ggplot(clinic_long, aes(x = Metric, y = Value, fill = Group)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
-  labs(x = "Blood Metric", y = "Value", fill = "Patient-Timepoint") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-## Log Fold Change
 library(readxl)
 library(dplyr)
 library(tidyr)
@@ -3366,7 +2824,7 @@ metric_order <- c("Neutrophils", "Lymphocytes", "Eosinophils", "Monocytes")
 # Function to generate log2 FC plot for one patient
 make_fc_plot <- function(patient_id, title_text, fill_color) {
   clinic_blood <- read_excel(
-    "paht_to/Correlation data Mirte.xlsx", 
+    "path_to/Correlation data Mirte.xlsx", 
     sheet = "Correlation_blood_levels"
   )
   
