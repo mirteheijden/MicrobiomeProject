@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Output file name
-output_file="/scratch/project_2008347/mice_feces_IV2/RESULTS/reads_count_mice_and_human_removal_postprocess.tsv"
+output_file="/scratch/project_XXXX/mice_feces_IV2/RESULTS/reads_count_mice_and_human_removal_postprocess.tsv"
 
 # Create header for the output file
 echo -e "Sample_ID\tReads_Count" > "$output_file"
 
 # Iterate over all .fastq.gz files in the ANALYSIS_READY_FASTQ directory
-for file in /scratch/project_2008347/mice_feces_IV2/RESULTS/analysis_ready_fastqs/*.unmapped_1.fastq.gz; do
+for file in /scratch/project_XXXX/mice_feces_IV2/RESULTS/analysis_ready_fastqs/*.unmapped_1.fastq.gz; do
     # Extract sample ID from file name
     sample_id1=$(basename "$file" A1_)
     sample_id=${sample_id1%.unmapped_1.fastq.gz}
