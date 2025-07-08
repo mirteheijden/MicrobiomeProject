@@ -1,4 +1,4 @@
-# mice_feces_IV2
+# mice_study
 Adapted from @erawijantari
 
 Puhti - pre-processing
@@ -13,6 +13,7 @@ download FASTA file from here: https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_
 Go to NCBI_dataset --> data --> GCA_964188535.1. Copy file .fna file to DB map, change file.fna to mice.FASTA and copy to Puhti DB using winSCP
 $ --hostremoval_reference /scratch/project_200XXXX/mice_feces_IV2/DB/mice.fasta
 Let use --save_hostremoval_unmapped just to be safe to store the unmapped host reads (typically this is the final processed reads) ???
+
 Human:
 
 download FASTA file from here: https://www.ncbi.nlm.nih.gov/data-hub/genome/GCA_009914755.4/
@@ -28,7 +29,7 @@ Greengenes2: adapted from @TuomasBorman Setting and Running GG2 plugin - FOR SHO
 
 For shotgun reads, we need newest QIIME2 tools with GG2 plugin and Woltka
 
-Go to directory where you want to save the config for installation (e.g in project or home, not scratch)
+Go to directory where you want to save the config for installation (e.g in project or home, not in scratch)
 
 Download and save the environment config file needed for installation wget https://raw.githubusercontent.com/qiime2/distributions/dev/2023.9/shotgun/released/qiime2-shotgun-ubuntu-latest- conda.yml
 
@@ -125,18 +126,18 @@ IMPORTANT NOTES: always remember to check the tools version especially if runnin
 When done, continue with merging genefamilies, pathabundance and pathcoverage files:
 
 $ module load humann/3.8
-$ cd /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3
+$ cd /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3
 $ mkdir merged
-$ humann_join_tables --input /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3/raw --file_name genefamilies.tsv --output /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3/merged/genefamilies.txt
-$ humann_join_tables --input /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3/raw --file_name pathabundance.tsv --output /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3/merged/pathabundance.txt
-$ humann_join_tables --input /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3/raw --file_name pathcoverage.tsv --output /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3/merged/pathcoverage.txt
+$ humann_join_tables --input /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/raw --file_name genefamilies.tsv --output /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged/genefamilies.txt
+$ humann_join_tables --input /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/raw --file_name pathabundance.tsv --output /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged/pathabundance.txt
+$ humann_join_tables --input /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/raw --file_name pathcoverage.tsv --output /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged/pathcoverage.txt
 Look if results are presnet in RESULTS/humann3/merged
 
-$ cd /scratch/project_2008347/mice_feces_IV2/RESULTS/humann3/merged
+$ cd /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged
 
 Create humann_regroup_funct.sh and humann_renorm_rename.sh script and put in the SCRIPTS directory (see biobakery for info, https://github.com/biobakery/humann?tab=readme-ov-file#guides-to-humann-utility-scripts) 
 
-$ humann_databases --download utility_mapping full /scratch/project_2008347/mice_feces_IV2/DATABASE_DIR
+$ humann_databases --download utility_mapping full /scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR
 Run humann_regroup_funct.sh script
 $ bash ./SCRIPTS/humann_regroup_funct.sh
 
