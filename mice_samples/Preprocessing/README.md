@@ -62,8 +62,11 @@ Download the WoL2 database: http://ftp.microbio.me/pub/wol2/ https://github.com/
 Let's put this in the DB directory, remember to change the project number in the script to match yours
 
   $ cd ./DB
+  
   $ chmod +x download_wol2.sh
+  
   $ sbatch ../SCRIPTS/download_wol2.sh
+  
 
 
 NEXTFLOW
@@ -80,9 +83,11 @@ Run part one of taxprofiler_part1.sh script for cleaning data + removing mice co
 When done, create a second samplesheet: "config/samplesheet2.csv" and run the second part of taxprofiler for removing human contamination (during sample processing):
 
   $ sbatch SCRIPTS/taxprofiler_part2.sh
+  
 Be sure to update the pipeline regularly:
 
   $ nextflow pull nf-core/taxprofiler
+  
 MetaPhlan4 results "metaphlan_db_meta4_combined_reports.txt" can be found RESULTS/Metaphlan. Use WinSCP to transfer to harddrive or to Rstudio. If they are not merged yet, merge the .metaphlan_profile.txt files yourself:
 
   $ module load metaphlan
@@ -95,14 +100,21 @@ Check the removal of the mice and human reads by:
 
 Calculating the reads in the Raw data (reads_count_preprocess), after mice removal () and after human removal ():
   $ cd ./SCRIPTS
+  
 Create the scripts using nano ( $ nano reads_count_preprocess, $ nano reads_count_mice_removal_postprocess, nano reads_count_mice_and_human_removal_postprocess)
 Run the scripts, one by one:
   $ chmod +x reads_count_preprocess
+  
   $ ./reads_count_preprocess
+  
   $ chmod +x reads_count_mice_removal_postprocess
+  
   $ ./reads_count_mice_removal_postprocess
+  
   $ chmod +x reads_count_mice_and_human_removal_postprocess
+  
   $ ./reads_count_mice_and_human_removal_postprocess
+  
 Results can be found in RESULTS/reads_count_preprocess.tsv, RESULTS/reads_count_mice_removal_postprocess and RESULTS/reads_count_mice_and_human_removal_postprocess
 Move .tsv files to PC using WinSCP
 
@@ -115,7 +127,9 @@ Create the "run_GG2shotgun_workflow.sh" bash script in SCRIPTS to execute snakem
 Exectue run:
 
   $ chmod +x ./SCRIPTS/run_GG2shotgun_workflow.sh
+  
   $ ./SCRIPTS/run_GG2shotgun_workflow.sh
+  
 Results "counts.qza" and "taxonomy.qza" can be found at RESULTS/gg2. Use WinSCP to transfer to harddrive or to Rstudio
 
 HUMANN3 (functional profiling) 
@@ -127,17 +141,25 @@ Create a bash script "SCRIPTS/run_humann_workflow.sh" to execute snakemake.
 Execute run:
 
   $ chmod +x ./SCRIPTS/run_humann_workflow.sh
+  
   $ ./SCRIPTS/run_humann_workflow.sh
+  
 IMPORTANT NOTES: always remember to check the tools version especially if running in batch. For running samples more than 100, it is more convenience to use the group function of snakemake.
 
 When done, continue with merging genefamilies, pathabundance and pathcoverage files:
 
   $ module load humann/3.8
+  
   $ cd /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3
+  
   $ mkdir merged
+  
   $ humann_join_tables --input /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/raw --file_name genefamilies.tsv --output /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged/genefamilies.txt
+  
   $ humann_join_tables --input /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/raw --file_name pathabundance.tsv --output /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged/pathabundance.txt
+  
   $ humann_join_tables --input /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/raw --file_name pathcoverage.tsv --output /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged/pathcoverage.txt
+  
 Look if results are presnet in RESULTS/humann3/merged
 
   $ cd /scratch/project_XXXX/mice_feces_IV2/RESULTS/humann3/merged
@@ -145,6 +167,7 @@ Look if results are presnet in RESULTS/humann3/merged
 Create humann_regroup_funct.sh and humann_renorm_rename.sh script and put in the SCRIPTS directory (see biobakery for info, https://github.com/biobakery/humann?tab=readme-ov-file#guides-to-humann-utility-scripts) 
 
   $ humann_databases --download utility_mapping full /scratch/project_XXXX/mice_feces_IV2/DATABASE_DIR
+  
 Run humann_regroup_funct.sh script
   $ bash ./SCRIPTS/humann_regroup_funct.sh
 
