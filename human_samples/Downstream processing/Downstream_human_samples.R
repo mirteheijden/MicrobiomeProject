@@ -545,31 +545,14 @@ plotAbundance(tse_filtered, rank = "species", assay.type = "relabundance",
 
 #####################################################################################################
 
-## DAA - ANCOM_BC
-#BiocManager::install("ANCOMBC")
 
-# Load required packages
-library(qiime2R)
-library(mia)
-library(miaViz)
-library(TreeSummarizedExperiment)
-library(dplyr)
-library(phyloseq)
-library(ggplot2)
-library(patchwork)
-library(ecodist)
-library(data.table)
-library(vegan)
-library(ggforce)
-library(MicrobiomeStat)
-library(tibble)
-library(ANCOMBC)
-library(foreach)
-library(rngtools)
-library(ggplot2)
 
-#files
 
+
+#####################################################################################################################
+
+
+################ Wilcoxon, Log2 FC plot -  Genus
 ##TSE from GG2
 tse_GG2 <- loadFromQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
@@ -578,245 +561,69 @@ rownames(col_data_GG2) <- col_data_GG2$Patient_day
 colData(tse_GG2) <- col_data_GG2
 col_data_GG2 <- as.data.frame(colData(tse_GG2))
 
-# Define tse - species GG2
+
+library(phyloseq)
+library(dplyr)
+library(ggplot2)
+library(openxlsx)
+
+# Load and preprocess data
 tse <- tse_GG2
-
-
-# Filter for DC and No_DC samples
 tse <- tse[, which(colData(tse)$Response.day78. %in% c("DC", "No_DC"))]
 tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
-
-# Replace all spaces with underscores in row names
 rownames(tse) <- gsub(" ", "_", rownames(tse))
 
-# Transform count assay to relative abundances
+# Transform to relative abundance
 tse_rel <- transformAssay(tse,
                           assay.type = "counts",
                           method = "relabundance")
 
-# Convert to phyloseq object
+# Convert to phyloseq and agglomerate at genus level
 pseq <- makePhyloseqFromTreeSummarizedExperiment(tse_rel)
-pseq_species <- phyloseq::tax_glom(pseq, taxrank = "species")
+pseq_genus <- tax_glom(pseq, taxrank = "genus")
 
-# Perform ANCOMBC analysis, comparing DC vs No_DC
-out_gg2_species = ancombc(
-  phyloseq = pseq_species, 
-  formula = "Response.day78.", 
-  p_adj_method = "fdr", 
-  lib_cut = 0, 
-  group = "Response.day78.", 
-  struc_zero = TRUE, 
-  neg_lb = TRUE, 
-  tol = 1e-5, 
-  max_iter = 100, 
-  conserve = TRUE, 
-  alpha = 0.05, 
-  global = TRUE
-)
+# Extract abundance and metadata
+otu_mat <- as.data.frame(otu_table(pseq_genus))
+taxa <- tax_table(pseq_genus)[, "genus"]
+sample_metadata <- sample_data(pseq_genus)
 
-# Extract results
-res <- out_gg2_species$res
+# Ensure groupings are factors
+group <- factor(sample_metadata$Response.day78., levels = c("DC", "No_DC"))
 
-# Compute log fold change for DC vs No_DC
-# Flip the log fold change if needed, since currently it is for No_DC as the numerator
-results <- data.frame(
-  taxon = res$lfc$taxon,
-  # Flip the fold change calculation: we assume the log fold change from No_DC to DC
-  log_fold_change = -res$lfc$Response.day78.No_DC,  # Reverse the sign for the log fold change
-  q_value = as.numeric(as.character(res$q_val$Response.day78.No_DC)),
-  differentially_abundant = res$diff_abn$Response.day78.No_DC
-)
+# Wilcoxon test per genus
+wilcox_results <- apply(otu_mat, 1, function(x) {
+  test <- wilcox.test(x ~ group, exact = FALSE)
+  logFC <- log2((mean(x[group == "DC"]) + 0.01) / (mean(x[group == "No_DC"]) + 0.01))
+  c(p_value = test$p.value, logFC = logFC)
+})
 
-# Filter for significant results
-significant_results <- results[results$differentially_abundant == TRUE, ]
+# Convert to data frame
+wilcox_df <- as.data.frame(t(wilcox_results))
+wilcox_df$taxon <- rownames(wilcox_df)
+wilcox_df$genus <- tax_table(pseq_genus)[wilcox_df$taxon, "genus"]
 
-# Filter for significant results based on q-value threshold
-significant_results <- significant_results[significant_results$q_value < 0.01,]
+# Adjust p-values
+wilcox_df$adj_p_value <- p.adjust(wilcox_df$p_value, method = "fdr")
 
-# Filter for significant results based on log_fold_change thresholds
-significant_results <- significant_results[significant_results$log_fold_change < -2.5 | significant_results$log_fold_change > 2.5,]
+# Filter results
+filtered_results <- wilcox_df %>%
+  filter(p_value < 0.05 & (logFC > 2 | logFC < -2)) %>%
+  mutate(response = ifelse(logFC > 0, "DC", "No_DC"),
+         highlight = ifelse(logFC > 0, "darkturquoise", "pink"),
+         hjust_pos = ifelse(logFC > 0, -0.1, 1.1),
+         genus = gsub("^g__", "", genus)) %>%
+  filter(!is.na(genus) & genus != "")
 
-# Print the significant results
-print(significant_results)
-
-## bar plot
-
-# Extract the row names and species column from rowData(tse_rel)
-row_data <- rowData(tse_rel)
-row_names_to_species <- data.frame(
-  row_name = rownames(row_data),
-  species = row_data$species
-)
-
-# Create a lookup table for easy matching
-lookup_table <- setNames(row_names_to_species$species, row_names_to_species$row_name)
-
-# Replace values in the 'taxon' column of significant_results
-significant_results <- significant_results %>%
-  mutate(taxon = ifelse(taxon %in% names(lookup_table), 
-                        lookup_table[taxon], 
-                        taxon))
-
-# Remove the "s__" prefix from the 'taxon' column in significant_results
-significant_results$taxon <- gsub("^s__", "", significant_results$taxon)
-
-# Create a new column for color mapping based on log_fold_change (darkturquoise for DC, pink for No_DC)
-significant_results$highlight <- ifelse(significant_results$log_fold_change > 0, "darkturquoise", "pink")
-
-# Create a new column to represent the response category (DC = darkturquoise, No_DC = pink)
-significant_results$response <- ifelse(significant_results$log_fold_change > 0, "DC", "No_DC")
-
-# Remove rows where 'taxon' is empty or NA
-significant_results <- significant_results[!is.na(significant_results$taxon) & significant_results$taxon != "", ]
-
-significant_results$hjust_pos <- ifelse(significant_results$log_fold_change > 0, -0.1, 1.1)
-
-bar_plot <- ggplot(significant_results, aes(x = reorder(taxon, log_fold_change), 
-                                            y = log_fold_change, 
-                                            fill = response)) +
+# Bar plot
+bar_plot <- ggplot(filtered_results, aes(x = reorder(genus, logFC), 
+                                         y = logFC, 
+                                         fill = response)) +
   geom_bar(stat = "identity", show.legend = TRUE) + 
-  geom_hline(yintercept = 0, color = "black", linewidth = 0.6) +
-  geom_vline(xintercept = 0.1, color = "black", linewidth = 0.6) +
-  coord_flip() +
-  scale_fill_manual(values = c("DC" = "#F6B9A9", "No_DC" = "#DCDCDC")) +
-  labs(
-    title = "Differential abundant species between DC and No_DC",
-    x = "",
-    y = "Log Fold Change"
-  ) +
-  theme_bw() + 
-  theme(
-    plot.title = element_text(face = "plain", size = 34, hjust = 0.5),
-    axis.title.x = element_text(size = 24, margin = margin(t = 10)),
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.text.x = element_text(size = 22),
-    legend.title = element_text(face = "bold", size = 16),
-    legend.text = element_text(size = 16),
-    text = element_text(size = 14),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    plot.background = element_rect(fill = "white", color = NA),
-    panel.border = element_blank()
-  ) +
-  guides(fill = guide_legend(title = "", labels = c("DC", "No_DC"))) +
-  geom_text(aes(label = taxon, hjust = hjust_pos),
-            size = 5,
-            nudge_y = 0) +
-  scale_y_continuous(expand = expansion(mult = c(0.8, 0.8))) +
-  scale_x_discrete(expand = expansion(mult = c(0.05, 0)))
-
-# Print the updated plot
-print(bar_plot)
-
-
-
-
-# ANCOMBC genus GG2
-tse <- tse_GG2
-
-
-# Filter for DC and No_DC samples
-tse <- tse[, which(colData(tse)$Response.day78. %in% c("DC", "No_DC"))]
-tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
-
-# Replace all spaces with underscores in row names
-rownames(tse) <- gsub(" ", "_", rownames(tse))
-
-# Transform count assay to relative abundances
-tse_rel <- transformAssay(tse,
-                          assay.type = "counts",
-                          method = "relabundance")
-
-# Convert to phyloseq object
-pseq <- makePhyloseqFromTreeSummarizedExperiment(tse_rel)
-pseq_genus <- phyloseq::tax_glom(pseq, taxrank = "genus")
-
-# Perform ANCOMBC analysis, comparing DC vs No_DC
-out_gg2_genus = ancombc(
-  phyloseq = pseq_genus, 
-  formula = "Response.day78.", 
-  p_adj_method = "fdr", 
-  lib_cut = 0, 
-  group = "Response.day78.", 
-  struc_zero = TRUE, 
-  neg_lb = TRUE, 
-  tol = 1e-5, 
-  max_iter = 100, 
-  conserve = TRUE, 
-  alpha = 0.05, 
-  global = TRUE
-)
-
-# Extract results 
-res <- out_gg2_genus$res
-
-# Compute log fold change for DC vs No_DC
-# Flip the log fold change if needed, since currently it is for No_DC as the numerator
-results <- data.frame(
-  taxon = res$lfc$taxon,
-  # Flip the fold change calculation: we assume the log fold change from No_DC to DC
-  log_fold_change = -res$lfc$Response.day78.No_DC,  # Reverse the sign for the log fold change
-  q_value = as.numeric(as.character(res$q_val$Response.day78.No_DC)),
-  differentially_abundant = res$diff_abn$Response.day78.No_DC
-)
-
-# Filter for significant results
-significant_results <- results[results$differentially_abundant == TRUE, ]
-
-# Filter for significant results based on q-value threshold
-significant_results <- significant_results[significant_results$q_value < 0.01,]
-
-# Filter for significant results based on log_fold_change thresholds
-significant_results <- significant_results[significant_results$log_fold_change < -2 | significant_results$log_fold_change > 2,]
-
-# Print the significant results
-print(significant_results)
-
-## bar plot
-
-# Extract the row names and genus column from rowData(tse_rel)
-row_data <- rowData(tse_rel)
-row_names_to_genus <- data.frame(
-  row_name = rownames(row_data),
-  genus = row_data$genus
-)
-
-# Create a lookup table for easy matching
-lookup_table <- setNames(row_names_to_genus$genus, row_names_to_genus$row_name)
-
-# Replace values in the 'taxon' column of significant_results
-significant_results <- significant_results %>%
-  mutate(taxon = ifelse(taxon %in% names(lookup_table), 
-                        lookup_table[taxon], 
-                        taxon))
-
-# Remove the "s__" prefix from the 'taxon' column in significant_results
-significant_results$taxon <- gsub("^g__", "", significant_results$taxon)
-
-# Create a new column for color mapping based on log_fold_change (darkturquoise for DC, pink for No_DC)
-significant_results$highlight <- ifelse(significant_results$log_fold_change > 0, "darkturquoise", "pink")
-
-# Create a new column to represent the response category (DC = darkturquoise, No_DC = pink)
-significant_results$response <- ifelse(significant_results$log_fold_change > 0, "DC", "No_DC")
-
-# Remove rows where 'taxon' is empty or NA
-significant_results <- significant_results[!is.na(significant_results$taxon) & significant_results$taxon != "", ]
-
-# Create the bar plot with the 'response' column for color mapping
-# Create a label position column
-significant_results$hjust_pos <- ifelse(significant_results$log_fold_change > 0, -0.1, 1.1)
-
-bar_plot <- ggplot(significant_results, aes(x = reorder(taxon, log_fold_change), 
-                                            y = log_fold_change, 
-                                            fill = response)) +
-  geom_bar(stat = "identity", show.legend = TRUE) + 
-  geom_hline(yintercept = 0, color = "black", linewidth = 0.6) +  # Vertical line at x=0 (logFC=0)
-  geom_vline(xintercept = 0.1, color = "black", linewidth = 0.6) +
+  geom_hline(yintercept = 0, color = "black", linewidth = 0.6) +  
   coord_flip() +
   scale_fill_manual(values = c("DC" = "#FADFA0", "No_DC" = "#DCDCDC")) +  
-  labs(title = "Differential abundant genus between DC and No_DC", x = "", y = "Log Fold Change") +
+  labs(title = "Differential abundant genus between DC and No_DC",
+       x = "", y = "Log2 Fold Change") +
   theme_bw() + 
   theme(
     plot.title = element_text(face = "plain", size = 34, hjust = 0.5),
@@ -834,24 +641,130 @@ bar_plot <- ggplot(significant_results, aes(x = reorder(taxon, log_fold_change),
     panel.border = element_blank()
   ) +
   guides(fill = guide_legend(title = "", labels = c("DC", "No_DC"))) +
-  
-  # Add labels outside bars: left of negative, right of positive
-  geom_text(aes(label = taxon, hjust = hjust_pos), 
+  geom_text(aes(label = genus, hjust = hjust_pos), 
             size = 4.5, 
-            nudge_y = 0)  # No nudge needed due to hjust
-
-bar_plot <- bar_plot +
-  scale_y_continuous(expand = expansion(mult = c(0.25, 0.25)))  # Add 15% padding on both sides
-
-bar_plot <- bar_plot +
+            nudge_y = 0) +
+  scale_y_continuous(expand = expansion(mult = c(0.25, 0.25))) +
   scale_x_discrete(expand = expansion(mult = c(0.05, 0)))
 
-# Print the plot
+# Show plot
 print(bar_plot)
 
+# Export results to Excel
+write.xlsx(filtered_results[, c("genus", "logFC", "p_value")], 
+           file = "path_to/RESULTS/GG2/wilcoxon_significant_genus.xlsx", 
+           row.names = FALSE)
 
 
-#####################################################################################################################
+
+
+
+################ Wilcoxon, Log2 FC plot -  species
+##TSE from GG2
+tse_GG2 <- loadFromQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
+# change MI_ID rownames of the tse, to our sample_ID
+col_data_GG2 <- colData(tse_GG2)
+rownames(col_data_GG2) <- col_data_GG2$Patient_day
+colData(tse_GG2) <- col_data_GG2
+col_data_GG2 <- as.data.frame(colData(tse_GG2))
+
+
+library(phyloseq)
+library(dplyr)
+library(ggplot2)
+library(openxlsx)
+
+# Load and preprocess data
+tse <- tse_GG2
+tse <- tse[, which(colData(tse)$Response.day78. %in% c("DC", "No_DC"))]
+tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
+rownames(tse) <- gsub(" ", "_", rownames(tse))
+
+# Transform to relative abundance
+tse_rel <- transformAssay(tse,
+                          assay.type = "counts",
+                          method = "relabundance")
+
+# Convert to phyloseq and agglomerate at species level
+pseq <- makePhyloseqFromTreeSummarizedExperiment(tse_rel)
+pseq_species <- tax_glom(pseq, taxrank = "species")
+
+# Extract abundance and metadata
+otu_mat <- as.data.frame(otu_table(pseq_species))
+taxa <- tax_table(pseq_species)[, "species"]
+sample_metadata <- sample_data(pseq_species)
+
+# Ensure groupings are factors
+group <- factor(sample_metadata$Response.day78., levels = c("DC", "No_DC"))
+
+# Wilcoxon test per species
+wilcox_results <- apply(otu_mat, 1, function(x) {
+  test <- wilcox.test(x ~ group, exact = FALSE)
+  logFC <- log2((mean(x[group == "DC"]) + 0.01) / (mean(x[group == "No_DC"]) + 0.01))
+  c(p_value = test$p.value, logFC = logFC)
+})
+
+# Convert to data frame
+wilcox_df <- as.data.frame(t(wilcox_results))
+wilcox_df$taxon <- rownames(wilcox_df)
+wilcox_df$species <- tax_table(pseq_species)[wilcox_df$taxon, "species"]
+
+# Adjust p-values
+wilcox_df$adj_p_value <- p.adjust(wilcox_df$p_value, method = "fdr")
+
+# Filter results
+filtered_results <- wilcox_df %>%
+  filter(p_value < 0.05 & (logFC > 2 | logFC < -2)) %>%
+  mutate(response = ifelse(logFC > 0, "DC", "No_DC"),
+         highlight = ifelse(logFC > 0, "darkturquoise", "pink"),
+         hjust_pos = ifelse(logFC > 0, -0.1, 1.1),
+         species = gsub("^s__", "", species)) %>%
+  filter(!is.na(species) & species != "")
+
+# Bar plot
+bar_plot <- ggplot(filtered_results, aes(x = reorder(species, logFC), 
+                                         y = logFC, 
+                                         fill = response)) +
+  geom_bar(stat = "identity", show.legend = TRUE) + 
+  geom_hline(yintercept = 0, color = "black", linewidth = 0.6) +  
+  coord_flip() +
+  scale_fill_manual(values = c("DC" = "#F6B9A9", "No_DC" = "#DCDCDC")) +  
+  labs(title = "Differential abundant species between DC and No_DC",
+       x = "", y = "Log2 Fold Change") +
+  theme_bw() + 
+  theme(
+    plot.title = element_text(face = "plain", size = 34, hjust = 0.5),
+    axis.title.x = element_text(size = 24, margin = margin(t = 10)),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_text(size = 22),
+    legend.title = element_text(face = "bold", size = 16),
+    legend.text = element_text(size = 16),
+    text = element_text(size = 14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.border = element_blank()
+  ) +
+  guides(fill = guide_legend(title = "", labels = c("DC", "No_DC"))) +
+  geom_text(aes(label = species, hjust = hjust_pos), 
+            size = 4.5, 
+            nudge_y = 0) +
+  scale_y_continuous(expand = expansion(mult = c(0.25, 0.25))) +
+  scale_x_discrete(expand = expansion(mult = c(0.05, 0)))
+
+# Show plot
+print(bar_plot)
+
+# Export results to Excel
+write.xlsx(filtered_results[, c("species", "logFC", "p_value")], 
+           file = "path_to/RESULTS/GG2/wilcoxon_significant_species.xlsx", 
+           row.names = FALSE)
+
+
+
+
 
 ######## Wilcoxon bar plots
 
@@ -1265,6 +1178,8 @@ for (species in alistipes_columns) {
 # Patchwork
 
 # Isolate Day 1 samples with a known disease outcome
+## Patchwork, barplots species
+# Isolate Day 1 samples with a known disease outcome
 tse <- tse_GG2
 tse <- tse[, which(colData(tse)$Response.day78. %in% c("DC", "No_DC"))]
 tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
@@ -1304,18 +1219,14 @@ merged_data$Response.day78. <- factor(merged_data$Response.day78., levels = c("D
 
 # Define the desired order of species
 ordered_species_columns <- c(
-  "s__Alistipes_A_871404_indistinctus",
-  "s__Alistipes_A_871400_timonensis",
-  "s__Alistipes_A_871400_sp002362235",
+  "s__Alistipes_A_871400_excrementavium",
   "s__Alistipes_A_871400_shahii",
   "s__Eggerthella_lenta"
 )
 
 # Define corresponding pretty titles
 species_map <- list(
-  "s__Alistipes_A_871404_indistinctus" = expression(italic("Alistipes indistinctus")),
-  "s__Alistipes_A_871400_timonensis" = expression(italic("Alistipes timonensis")),
-  "s__Alistipes_A_871400_sp002362235" = expression(italic("Alistipes sp")),
+  "s__Alistipes_A_871400_excrementavium" = expression(italic("Alistipes excrementavium")),
   "s__Alistipes_A_871400_shahii" = expression(italic("Alistipes shahii")),
   "s__Eggerthella_lenta" = expression(italic("Eggerthella lenta"))
 )
@@ -1676,21 +1587,6 @@ legend("topright",                 # Legend position
 
 
 #####################################################################################################
-############ Functional analysis - Maaslin 
-library(mia)
-library(miaViz)
-library(TreeSummarizedExperiment)
-library(stringr)
-
-# Load necessary library
-#if (!require("readr")) {
-# install.packages("readr")
-#}
-library(readr)
-library(ggplot2)
-library(dplyr)
-
-
 # Dot plot - KEGG
 # Gene family data
 gene_family_data <- read.delim("path_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
@@ -1760,87 +1656,44 @@ tse <- tse[, which(colData(tse)$'Response(day78)' %in% c("DC", "No_DC"))]
 print(tse)
 
 
-# Maaslin_DC
-library(Maaslin2)
+# Subset TSE object (already done above)
+tse <- tse[, which(colData(tse)$Sample_point == "Day_1")]
+tse <- tse[, which(colData(tse)$'Response(day78)' %in% c("DC", "No_DC"))]
 
-maaslin2_out <- Maaslin2(input_data = as.data.frame(t(assay(tse))),
-                         input_metadata = as.data.frame(colData(tse)),
-                         output = "EC_1",
-                         transform = "AST",
-                         fixed_effects = c("Response.day78.", "DC", "No_DC"),
-                         # random_effects = c(...),
-                         normalization = "TSS",
-                         standardize = FALSE,
-                         min_prevalence = 0)
+# Extract count data and metadata
+counts <- assay(tse)
+meta <- colData(tse)
 
-library(dplyr)
-library(knitr)
+# Ensure group labels
+group <- factor(meta$`Response(day78)`, levels = c("DC", "No_DC"))
 
-maaslin2_out$results %>%
-  filter(qval < 0.5) %>%
-  knitr::kable()
+# Perform Wilcoxon test for each feature
+wilcox_results <- apply(counts, 1, function(feature_counts) {
+  test <- wilcox.test(feature_counts ~ group)
+  return(c(statistic = test$statistic, pval = test$p.value))
+})
 
-# Filter results with p-value < 0.01
-significant_results <- maaslin2_out$results %>%
-  filter(pval < 0.01)
+# Convert to data frame
+wilcox_df <- as.data.frame(t(wilcox_results))
+wilcox_df$Feature <- rownames(wilcox_df)
+wilcox_df$padj <- p.adjust(wilcox_df$pval, method = "fdr")
 
-# Set row names of significant_results to values in column 1
-rownames(significant_results) <- significant_results[, 1]
+# Filter significant features
+significant_results <- wilcox_df %>% filter(pval < 0.05)
 
-# Remove the first column as it's now redundant as row names
-significant_results <- significant_results[, -1]
+# Calculate Gene Ratio
+abundance_matrix_subset <- counts[significant_results$Feature, , drop = FALSE]
+significant_results$GeneRatio <- rowSums(abundance_matrix_subset > 0) / ncol(abundance_matrix_subset)
 
-# Extract the row names from the significant_results dataframe
-original_rownames <- rownames(significant_results)
-
-# Remove the leading "X" only if it is present at the start
-cleaned_rownames <- sub("^X", "", original_rownames)
-# Replace any non-alphanumeric character with a period
-cleaned_rownames <- gsub("[^[:alnum:]]", ".", cleaned_rownames)
-
-
-# Set the modified row names back to the significant_results dataframe
-rownames(significant_results) <- cleaned_rownames
-
-# Print the new row names to verify
-print(rownames(significant_results))
-
-
-# Extract row names from the TreeSummarizedExperiment object
-rownames_tse <- rownames(tse)
-
-# Remove the leading "X" if it is present at the start
-cleaned_rownames_tse <- sub("^X", "", rownames_tse)
-# Replace any non-alphanumeric character with a period
-cleaned_rownames_tse <- gsub("[^[:alnum:]]", ".", cleaned_rownames_tse)
-
-# Set the cleaned row names back to the tse dataframe
-rownames(tse) <- cleaned_rownames_tse
-
-# Print the new row names to verify
-print(rownames(tse))
-
-abundance_matrix_subset <- assay(tse)[rownames(significant_results), ]
-
-# Prepare plot data
+# Format for plotting
 plot_data <- significant_results %>%
-  mutate(
-    Feature = rownames(significant_results),
-    GeneRatio = rowSums(abundance_matrix_subset[rownames(significant_results), ] > 0) / ncol(abundance_matrix_subset),
-    Category = "KO"  # optional
-  )
-
-# Clean feature names for y-axis labels
-plot_data$Feature <- gsub("\\.", " ", plot_data$Feature)
-
-# Order features by p-value for plotting
-plot_data <- plot_data %>%
+  mutate(Feature = gsub("\\.", " ", Feature)) %>%
   arrange(pval) %>%
   mutate(Feature = factor(Feature, levels = rev(Feature)))
 
-# Dot Plot
+# Plot
 ggplot(plot_data, aes(x = GeneRatio, y = Feature)) +
-  geom_point(aes(color = pval), size = 4) + 
+  geom_point(aes(color = pval), size = 4) +
   scale_color_gradient(low = "#2E8B57", high = "skyblue") +
   theme_bw(base_size = 14) +
   labs(
@@ -1850,11 +1703,15 @@ ggplot(plot_data, aes(x = GeneRatio, y = Feature)) +
     color = "p-value"
   ) +
   theme(
-    axis.text.y = element_text(size = 12),
-    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 8),
     plot.title = element_text(hjust = 0.5, face = "bold", size = 18),
     legend.title = element_text(face = "bold")
   )
+
+write.xlsx(significant_results[, c("Feature", "pval")],
+           file = "path_to/RESULTS/GG2/wilcoxon_kegg_results.xlsx",
+           row.names = FALSE)
 
 
 
