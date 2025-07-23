@@ -1683,6 +1683,34 @@ legend("topright",                 # Legend position
        horiz = TRUE)
 
 
+## Write Excel file
+library(openxlsx)  # make sure this is loaded for createWorkbook etc.
+
+# Get adjacency matrix (signed, thresholded) from your updated network
+signed_mat <- netcomi_net$assoMat1
+
+# Extract edges from adjacency matrix (non-zero edges)
+edges <- which(signed_mat != 0, arr.ind = TRUE)
+
+# Create edge list with bacteria pairs and correlation signs
+edge_export <- data.frame(
+  bacteria_1 = rownames(signed_mat)[edges[,1]],
+  bacteria_2 = colnames(signed_mat)[edges[,2]],
+  correlation_sign = ifelse(signed_mat[edges] > 0, "+", "-")
+)
+
+# Remove duplicate edges (adjacency matrix is symmetric)
+edge_export <- edge_export[edge_export$bacteria_1 < edge_export$bacteria_2, ]
+
+# Check the first few rows
+head(edge_export)
+
+# Write to Excel
+wb <- createWorkbook()
+addWorksheet(wb, "Edges")
+writeData(wb, "Edges", edge_export)
+saveWorkbook(wb, "path_to/RESULTS/GG2/network_edge_list.xlsx", overwrite = TRUE)
+
 
 #####################################################################################################
 # Dot plot - KEGG
