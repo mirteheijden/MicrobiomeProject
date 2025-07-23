@@ -1966,7 +1966,7 @@ pheatmap(heatmap_matrix,
          fontsize_row = 12,
          fontsize_col = 20,
          angle_col = 45,
-         main = "Arginine increase in No_DC",
+         main = "Arginine pathway abundance",
          border_color = "black",
          fontsize = 18,
          legend = TRUE)  
