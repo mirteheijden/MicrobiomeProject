@@ -1654,19 +1654,20 @@ dev.off()
 plot(netcomi_netprops,
      repulsion = 0.98,
      rmSingles = TRUE,
-     shortenLabels = "simple",
+     shortenLabels = "none",
      labelScale = FALSE,
      nodeSize = "eigenvector",
      nodeSizeSpread = 3,
      nodeColor = "cluster",
      hubBorderCol = "gray40",
-     cexNodes = 2,
-     cexLabels = 1.2,
+     cexNodes = 1,
+     cexLabels = 0.9,
+     labelRepel = TRUE, 
      edgeTranspHigh = 20,
      title1 = "Network of top genus in all patients",
      showTitle = TRUE,
-     cexTitle = 1.5,
-     mar = c(1, 3, 4, 8))
+     cexTitle = 2.1,
+     mar = c(1, 3, 3, 8))
 
 # Add legends
 legend("topright",                 # Legend position
