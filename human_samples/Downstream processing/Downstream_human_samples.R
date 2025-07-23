@@ -198,6 +198,103 @@ bray_curtis_plot
 
 
 
+#######################################################################################
+#AlphaDiversity - Response
+
+# Load required packages
+library(qiime2R)
+library(mia)
+library(miaViz)
+library(TreeSummarizedExperiment)
+library(dplyr)
+library(phyloseq)
+library(ggplot2)
+library(patchwork)
+library(ecodist)
+library(data.table)
+library(vegan)
+library(ggforce)
+library(ggplot2)
+library(scater)
+
+#files
+
+##TSE from GG2
+tse_GG2 <- loadFromQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
+# change MI_ID rownames of the tse, to our sample_ID
+col_data_GG2 <- colData(tse_GG2)
+rownames(col_data_GG2) <- col_data_GG2$Patient_day
+colData(tse_GG2) <- col_data_GG2
+col_data_GG2 <- as.data.frame(colData(tse_GG2))
+
+##TSE from Metaphlan
+tse_Metaphlan <- loadFromMetaphlan("path_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="path_to/RESULTS/Metaphlan/metadata.tsv")
+# change MI_ID rownames of the tse, to our sample_ID
+col_data_Metaphlan <- colData(tse_Metaphlan)
+rownames(col_data_Metaphlan) <- col_data_Metaphlan$Patient_day
+colData(tse_Metaphlan) <- col_data_Metaphlan
+col_data_Metaphlan <- as.data.frame(colData(tse_Metaphlan))
+
+#Define tse
+tse <- tse_GG2
+#tse <- tse_Metaphlan
+
+tse <- tse[, which(colData(tse)$Response.day78. %in% c("No_DC", "DC"))]
+tse <- tse[, which(colData(tse)$Antibiotics %in% c("Yes", "No"))]
+tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
+
+tse <- mergeFeaturesByRank(tse, rank ="species", onRankOnly=TRUE)
+
+tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
+
+# Estimate (observed) richness
+tse_rel <- addAlpha(
+  tse_rel, assay.type = "relabundance", index = "shannon", name = "observed",
+  detection = 10)
+
+# Check some of the first values in colData
+head(tse_rel$observed)
+
+# Set the specific order for the Patient factor levels
+colData(tse_rel)$Patient <- factor(colData(tse_rel)$Patient, 
+                                   levels = c("20206", "20103", "20212", "30207", 
+                                              "20108", "20211", "20104", "30209"))
+
+# Plot
+plotColData(
+  tse_rel,
+  y = "observed",
+  x = "Patient_Response",
+  colour_by = "Antibiotics",
+  size_by = "observed"
+) +
+  theme(
+    title = element_text(size = 10),
+    plot.title = element_text(face = "plain", size = 18),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12, face = "plain"),
+    axis.text.y = element_text(size = 12, face = "plain"),
+    legend.title = element_text(face = "bold", size = 14),
+    legend.text = element_text(size = 14),
+    text = element_text(size = 12),
+    
+    # Background and border tweaks
+    panel.border = element_blank(),
+    panel.grid = element_blank(),
+    panel.background = element_blank(),
+    
+    # Add axis lines with thickness
+    axis.line = element_line(color = "black", size = 0.8)
+  ) +
+  labs(
+    x = "Patient",
+    y = expression(Richness[Observed]),
+    colour = "Antibiotics"
+  ) +
+  scale_color_manual(values = c("Yes" = "black", "No" = "purple"))
+
+
 
 ###################################################################################################
 ## Taxonomic barplots
