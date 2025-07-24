@@ -658,7 +658,13 @@ rownames(col_data_GG2) <- col_data_GG2$Patient_day
 colData(tse_GG2) <- col_data_GG2
 col_data_GG2 <- as.data.frame(colData(tse_GG2))
 
-
+##TSE from Metaphlan
+tse_Metaphlan <- loadFromMetaphlan("path_to/RESULTS/Metaphlan/metaphlan_db_meta4_combined_reports.txt", sample_meta="path_to/RESULTS/Metaphlan/metadata.tsv")
+# change MI_ID rownames of the tse, to our sample_ID
+col_data_Metaphlan <- colData(tse_Metaphlan)
+rownames(col_data_Metaphlan) <- col_data_Metaphlan$Patient_day
+colData(tse_Metaphlan) <- col_data_Metaphlan
+col_data_Metaphlan <- as.data.frame(colData(tse_Metaphlan))
 library(phyloseq)
 library(dplyr)
 library(ggplot2)
@@ -666,6 +672,7 @@ library(openxlsx)
 
 # Load and preprocess data
 tse <- tse_GG2
+#tse <- tse_Metaphlan
 tse <- tse[, which(colData(tse)$Response.day78. %in% c("DC", "No_DC"))]
 tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
 rownames(tse) <- gsub(" ", "_", rownames(tse))
