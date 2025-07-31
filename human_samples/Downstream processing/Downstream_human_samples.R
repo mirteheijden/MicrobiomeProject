@@ -1720,6 +1720,7 @@ saveWorkbook(wb, "path_to/RESULTS/GG2/network_edge_list.xlsx", overwrite = TRUE)
 
 
 #####################################################################################################
+
 # Dot plot - KEGG
 # Gene family data
 gene_family_data <- read.delim("path_to/RESULTS/humann3/RenormRename_genefamilies_Uniref90_KO_unstratified.txt", header = T)
@@ -1818,6 +1819,16 @@ significant_results <- wilcox_df %>% filter(pval < 0.05)
 abundance_matrix_subset <- counts[significant_results$Feature, , drop = FALSE]
 significant_results$GeneRatio <- rowSums(abundance_matrix_subset > 0) / ncol(abundance_matrix_subset)
 
+# Calculate logFC (log2 of median ratio between groups)
+logFC <- apply(counts[significant_results$Feature, , drop = FALSE], 1, function(feature_counts) {
+  group1_median <- median(feature_counts[group == "DC"])
+  group2_median <- median(feature_counts[group == "No_DC"])
+  log2((group1_median + 1e-6) / (group2_median + 1e-6))  # Add small constant to avoid log(0)
+})
+
+# Add logFC to the results table
+significant_results$logFC <- logFC
+
 # Format for plotting
 plot_data <- significant_results %>%
   mutate(Feature = gsub("\\.", " ", Feature)) %>%
@@ -1842,7 +1853,11 @@ ggplot(plot_data, aes(x = GeneRatio, y = Feature)) +
     legend.title = element_text(face = "bold")
   )
 
-write.xlsx(significant_results[, c("Feature", "pval")],
+# Rename pval to p_value and write Excel
+significant_results <- significant_results %>%
+  rename(p_value = pval)
+
+write.xlsx(significant_results[, c("Feature", "p_value", "logFC")],
            file = "path_to/RESULTS/GG2/wilcoxon_kegg_results.xlsx",
            row.names = FALSE)
 
