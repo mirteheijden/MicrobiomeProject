@@ -1701,13 +1701,13 @@ edges <- which(signed_mat != 0, arr.ind = TRUE)
 
 # Create edge list with bacteria pairs and correlation signs
 edge_export <- data.frame(
-  bacteria_1 = rownames(signed_mat)[edges[,1]],
-  bacteria_2 = colnames(signed_mat)[edges[,2]],
+  Genus_1 = rownames(signed_mat)[edges[,1]],
+  Genus_2 = colnames(signed_mat)[edges[,2]],
   correlation_sign = ifelse(signed_mat[edges] > 0, "+", "-")
 )
 
 # Remove duplicate edges (adjacency matrix is symmetric)
-edge_export <- edge_export[edge_export$bacteria_1 < edge_export$bacteria_2, ]
+edge_export <- edge_export[edge_export$Genus_1 < edge_export$Genus_2, ]
 
 # Check the first few rows
 head(edge_export)
