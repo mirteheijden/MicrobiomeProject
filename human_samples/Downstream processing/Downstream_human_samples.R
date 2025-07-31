@@ -2768,6 +2768,8 @@ for (fecal_var_pretty in names(plot_pairs)) {
   cor_val <- signif(cor_result$estimate, 3)
   p_val <- signif(cor_result$p.value, 3)
   
+  cor_symbol <- if (method == "pearson") "r" else "ρ"
+  
   p <- ggplot(df, aes(x = x, y = y)) +
     geom_point(color = "darkgreen", alpha = 0.8, size = 3) +
     geom_smooth(method = "lm", se = TRUE, color = "black", linetype = "dashed", fill = "lightgrey") +
@@ -2775,7 +2777,7 @@ for (fecal_var_pretty in names(plot_pairs)) {
       x = fecal_var_pretty,
       y = blood_var_pretty,
       title = paste(fecal_var_pretty, "vs", blood_var_pretty),
-      subtitle = paste("Method:", method, "| r =", cor_val, "| p =", ifelse(p_val < 0.001, "< 0.001", p_val))
+      subtitle = paste("Method:", method, "|", cor_symbol, "=", cor_val, "| p =", ifelse(p_val < 0.001, "< 0.001", p_val))
     ) +
     theme(
       plot.title = element_text(face = "bold", size = 18, hjust = 0.5, margin = margin(b = 10)),
@@ -2804,6 +2806,7 @@ if (length(plot_list) == 2) {
   combined_plot <- plot_list[[1]] | plot_list[[2]]
   print(combined_plot)
 }
+
 
 
 
