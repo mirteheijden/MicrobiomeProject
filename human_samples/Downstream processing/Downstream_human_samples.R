@@ -2267,6 +2267,7 @@ library(dplyr)
 library(tibble)
 library(patchwork)
 
+
 tse <- tse_GG2
 tse <- tse[, colData(tse)$Patient %in% c("30209", "30207")]
 
@@ -2277,7 +2278,7 @@ tse_rel <- transformAssay(tse, assay.type = "counts", method = "relabundance")
 tse_genus <- agglomerateByRank(tse_rel, rank = "genus", onRankOnly = TRUE)
 
 # Filter to specific genera
-keep_genera <- c("g__Eggerthella", "g__Alistipes_A_871400", "g__Alistipes_A_871404")
+keep_genera <- c("g__Eggerthella", "g__Alistipes_A_871400")
 tse_filtered <- tse_genus[rowData(tse_genus)$genus %in% keep_genera, ]
 
 # Convert to data frame
@@ -2359,15 +2360,12 @@ plot_genus <- function(genus_name) {
 p1 <- plot_genus("g__Alistipes_A_871400") +
   labs(title = "Alistipes_A_871400\nincrease after therapy")
 
-p2 <- plot_genus("g__Alistipes_A_871404") +
-  labs(title = "Alistipes_A_871404\nincrease after therapy")
-
-p3 <- plot_genus("g__Eggerthella") +
+p2 <- plot_genus("g__Eggerthella") +
   labs(title = "Eggerthella\ndecrease after therapy")
 
 # Combine plots with individual legends, no global title
-(p1 | plot_spacer() | p2 | plot_spacer() | p3) +
-  plot_layout(widths = c(1, 0.1, 1, 0.1, 1))
+(p1 | plot_spacer() | p2) +
+  plot_layout(widths = c(1, 0.1, 1))
 
 
 # species - Pie chart
