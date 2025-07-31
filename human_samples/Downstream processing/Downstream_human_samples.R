@@ -1703,7 +1703,7 @@ edges <- which(signed_mat != 0, arr.ind = TRUE)
 edge_export <- data.frame(
   Genus_1 = rownames(signed_mat)[edges[,1]],
   Genus_2 = colnames(signed_mat)[edges[,2]],
-  correlation_sign = ifelse(signed_mat[edges] > 0, "+", "-")
+  Correlation_sign = ifelse(signed_mat[edges] > 0, "+", "-")
 )
 
 # Remove duplicate edges (adjacency matrix is symmetric)
