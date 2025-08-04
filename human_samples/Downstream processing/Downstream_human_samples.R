@@ -2199,7 +2199,7 @@ library(ggsignif)
 library(patchwork)
 
 # Load data
-serum <- read_excel("path_to/SCFA/SCFA_serum_2032025_KN.xlsx", sheet = "Mirte")
+serum <- read_excel("path_to/SCFA/SCFA_serum")
 
 # Define patient columns
 patient_columns <- c("20211", "20104", "30209", "20212", "20206", "20108", "20103(PR)", "30209")
@@ -2714,8 +2714,8 @@ library(patchwork)
 library(readxl)
 
 # Load the data
-clinic_fecal <- read_excel("path_to/Correlation data Mirte.xlsx", "Correlation_fecal")
-clinic_blood <- read_excel("path_to/Correlation data Mirte.xlsx", "Correlation_blood_levels")
+clinic_fecal <- read_excel("path_to/Correlation data.xlsx", "Correlation_fecal")
+clinic_blood <- read_excel("path_to/Correlation data.xlsx", "Correlation_blood_levels")
 
 # Convert first column to rownames
 clinic_fecal[[1]] <- as.character(clinic_fecal[[1]])
@@ -2830,7 +2830,7 @@ metric_order <- c("Neutrophils", "Lymphocytes", "Eosinophils", "Monocytes")
 # Function to generate log2 FC plot for one patient
 make_fc_plot <- function(patient_id, title_text, fill_color) {
   clinic_blood <- read_excel(
-    "path_to/Correlation data Mirte.xlsx", 
+    "path_to/Correlation data.xlsx", 
     sheet = "Correlation_blood_levels"
   )
   
