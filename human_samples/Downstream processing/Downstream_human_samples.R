@@ -649,7 +649,7 @@ plotAbundance(tse_filtered, rank = "species", assay.type = "relabundance",
 #####################################################################################################################
 
 
-################ Wilcoxon, Log2 FC plot -  Genus
+################ Wilcoxon, Log FC plot -  Genus
 ##TSE from GG2
 tse_GG2 <- loadFromQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
@@ -727,7 +727,7 @@ bar_plot <- ggplot(filtered_results, aes(x = reorder(genus, logFC),
   coord_flip() +
   scale_fill_manual(values = c("DC" = "#FADFA0", "No_DC" = "#DCDCDC")) +  
   labs(title = "Differential abundant genus between DC and No_DC",
-       x = "", y = "Log2 Fold Change") +
+       x = "", y = "Log Fold Change") +
   theme_bw() + 
   theme(
     plot.title = element_text(face = "plain", size = 34, hjust = 0.5),
@@ -763,7 +763,7 @@ write.xlsx(filtered_results[, c("genus", "logFC", "p_value")],
 
 
 
-################ Wilcoxon, Log2 FC plot -  species
+################ Wilcoxon, Log FC plot -  species
 ##TSE from GG2
 tse_GG2 <- loadFromQIIME2("path_to/RESULTS/GG2/counts.qza", taxonomy = "path_to/RESULTS/GG2/taxonomy.qza", sampleMetaFile="path_to/RESULTS/GG2/metadata.tsv")
 # change MI_ID rownames of the tse, to our sample_ID
@@ -834,7 +834,7 @@ bar_plot <- ggplot(filtered_results, aes(x = reorder(species, logFC),
   coord_flip() +
   scale_fill_manual(values = c("DC" = "#F6B9A9", "No_DC" = "#DCDCDC")) +  
   labs(title = "Differential abundant species between DC and No_DC",
-       x = "", y = "Log2 Fold Change") +
+       x = "", y = "Log Fold Change") +
   theme_bw() + 
   theme(
     plot.title = element_text(face = "plain", size = 34, hjust = 0.5),
