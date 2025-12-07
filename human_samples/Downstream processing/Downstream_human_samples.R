@@ -1397,6 +1397,76 @@ print(combined_patchwork)
 
 
 
+#### LinDA differentially abundance analysis
+
+# Define tse - GG2 - genus
+tse <- tse_GG2
+
+
+tse <- tse[, which(colData(tse)$Response.day78. %in% c("DC", "No_DC"))]
+tse <- tse[, which(colData(tse)$Sample_point %in% c("Day_1"))]
+
+# Extract genus level
+tse_spec <- mergeFeaturesByRank(tse, rank ="genus", onRankOnly=TRUE)
+
+# Replace all spaces with underscores in row names of tse_spec
+rownames(tse_spec) <- gsub(" ", "_", rownames(tse_spec))
+
+# Transform count assay to relative abundances
+tse_rel <- transformAssay(tse_spec,
+                          assay.type = "counts",
+                          method = "relabundance")
+
+# Run LinDA
+linda_out <- linda(feature.dat = as.data.frame(assay(tse_rel)),
+                   meta.dat = as.data.frame(colData(tse_rel)),
+                   formula = "~ Response.day78.",
+                   alpha = 0.05,
+                   prev.filter = 0,
+                   mean.abund.filter = 0)
+
+head(linda_out)
+
+# Extract the results data frame from linda_out
+results <- linda_out$output$Response.day78.No_DC
+
+# Convert row names to a column named 'taxon'
+results$taxon <- rownames(results)
+
+# Remove the "g__" prefix from the 'taxon' column in results
+results$taxon <- gsub("^g__", "", results$taxon)
+
+# Add a column to indicate if the taxon should be highlighted
+results$highlight <- ifelse(
+  results$taxon %in% c("Alistipes_A_871400", "Eggerthella"),
+  "highlight",
+  "no_highlight"
+)
+
+head(results)
+
+# Filter for significant results based on adjusted p-value threshold (adjust as needed)
+#significant_results <- results[results$reject == TRUE, ]
+
+#significant_results
+
+# Filter for significant results based on adjusted p-value threshold (adjust as needed)
+significant_results <- results[results$pvalue < 0.05, ]
+# Filter for significant results based on log2FoldChange thresholds
+significant_results <- significant_results[significant_results$log2FoldChange < 0 | significant_results$log2FoldChange > 3,]
+
+
+# Create the bar plot
+bar_plot <- ggplot(significant_results, aes(x = reorder(taxon, log2FoldChange), y = log2FoldChange, fill = highlight)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  scale_fill_manual(values = c("highlight" = "blue", "no_highlight" = "grey")) +
+  coord_flip() +  # Flip coordinates to make taxa names readable
+  labs(title = "Differentially expressed genus (LinDA analysis)", x = "Taxon", y = "Log Fold Change") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8))  # Adjust size if needed
+
+# Print the plot
+print(bar_plot)
 
 
 ##################################################################################################################
@@ -2260,8 +2330,8 @@ make_violin_plot <- function(met_name) {
 }
 
 # Create the 3 plots
-p1 <- make_violin_plot("Butyric-isobutyric Acid")
-p2 <- make_violin_plot("2-Methylvaleric Acid")
+p1 <- make_violin_plot("2-Methylvaleric Acid")
+p2 <- make_violin_plot("Butyric-isobutyric Acid")
 p3 <- make_violin_plot("Propionic Acid")
 
 # Combine using patchwork
