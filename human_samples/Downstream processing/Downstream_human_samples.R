@@ -1468,6 +1468,12 @@ bar_plot <- ggplot(significant_results, aes(x = reorder(taxon, log2FoldChange), 
 # Print the plot
 print(bar_plot)
 
+# Export results to Excel
+write.xlsx(filtered_results[, c("genus", "logFC", "p_value")], 
+           file = "path_to/RESULTS/GG2/LinDA_significant_genus.xlsx", 
+           row.names = FALSE)
+
+
 
 ##################################################################################################################
 ################## Network analysis
