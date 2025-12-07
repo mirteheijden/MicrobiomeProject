@@ -1463,7 +1463,23 @@ bar_plot <- ggplot(significant_results, aes(x = reorder(taxon, log2FoldChange), 
   coord_flip() +  # Flip coordinates to make taxa names readable
   labs(title = "Differentially expressed genus (LinDA analysis)", x = "Taxon", y = "Log Fold Change") +
   theme_minimal() +
-  theme(axis.text.y = element_text(size = 8))  # Adjust size if needed
+  theme(
+    plot.title = element_text(face = "plain", size = 18, hjust = 0.5, margin = margin(b = 10)),
+    plot.title.position = "plot",
+    axis.title.x = element_text(size = 14, margin = margin(t = 10)),
+    axis.title.y = element_text(size = 16, margin = margin(r = 10)),
+    axis.text = element_text(size = 12),
+    axis.text.x = element_text(margin = margin(t = 5), color = "black", size = 14),
+    axis.text.y = element_text(size = 16),
+    legend.position = "none",
+    text = element_text(size = 12),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black", size = 0.6)
+  ) 
 
 # Print the plot
 print(bar_plot)
