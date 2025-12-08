@@ -265,8 +265,7 @@ plotColData(
   tse_rel,
   y = "observed",
   x = "Patient_Response",
-  colour_by = "Antibiotics",
-  size_by = "observed"
+  colour_by = "Antibiotics"
 ) +
   theme(
     title = element_text(size = 10),
@@ -289,7 +288,7 @@ plotColData(
   ) +
   labs(
     x = "Patient",
-    y = expression(Richness[Observed]),
+    y = "Richness",
     colour = "Antibiotics"
   ) +
   scale_color_manual(values = c("Yes" = "black", "No" = "purple"))
